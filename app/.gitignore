@@ -1,0 +1,28 @@
+# Android/IntelliJ
+.gradle/
+build/
+.idea/
+local.properties
+*.iml
+
+# Android dependencies
+.gradle/
+build/
+captures/
+output.json
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs and caches
+*.log
+*.cache
+*.apk
+*.lock
+
+# Virtual Environment (if any)
+venv/
+
+# Ignore Kotlin build files
+*.kts.bak
