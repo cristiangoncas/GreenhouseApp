@@ -6,6 +6,8 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import junit.framework.TestCase.assertNotNull
+import junit.framework.TestCase.assertNull
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -87,7 +89,11 @@ class ApiClientTest {
         val apiClient = ApiClient(client = HttpClient(mockEngine), apiUrl = "http://localhost:8080")
 
         val heartBeat = apiClient.nextHeartBeat()
-        assert(heartBeat.values["maxTemp"] == "22")
-        assert(heartBeat.values["minTemp"] == "17")
+        assertNotNull(heartBeat.maxTemp)
+        assertNotNull(heartBeat.minTemp)
+        assertNull(heartBeat.morningTime)
+        assertNull(heartBeat.nightTime)
+        assert(heartBeat.maxTemp == "22")
+        assert(heartBeat.minTemp == "17")
     }
 }

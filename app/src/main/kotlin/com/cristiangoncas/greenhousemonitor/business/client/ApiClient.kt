@@ -6,7 +6,12 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
 import io.ktor.client.request.url
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -20,7 +25,6 @@ class ApiClient(
         val response = client.get {
             url("$apiUrl/fetchLogs")
         }
-        client.close()
         if (response.status.value in 200..299) {
             return Json.decodeFromString(response.body())
         } else {
@@ -32,7 +36,6 @@ class ApiClient(
         val response = client.get {
             url("$apiUrl/fetchAllLogs")
         }
-        client.close()
         if (response.status.value in 200..299) {
             return Json.decodeFromString(response.body())
         } else {
@@ -44,31 +47,35 @@ class ApiClient(
         val response = client.get {
             url("$apiUrl/nextHeartBeat")
         }
-        client.close()
         if (response.status.value in 200..299) {
             // TODO: Backend needs to return a common data structure shared across all APIs
             val body = response.body<String>()
-            val jsonElement = Json.parseToJsonElement(body)
-            val heartBeatValues = mutableMapOf<String, String>()
-            jsonElement.jsonObject.entries.map {
-                heartBeatValues.put(it.key, it.value.jsonPrimitive.content)
+            val json = Json {
+                ignoreUnknownKeys = true
             }
-
-            return HeartBeat(heartBeatValues)
+            val heartBeat = json.decodeFromString<HeartBeat>(body)
+            return heartBeat
         } else {
             throw Exception(response.status.description)
         }
     }
 
-    override suspend fun setMaxTemp(maxTemp: Int) {
-        val response = client.post {
-            url("$apiUrl/setMaxTemp")
-        }
-        client.close()
-        if (response.status.value in 200..299) {
-            return
-        } else {
-            throw Exception(response.status.description)
+    override suspend fun setMaxTemp(maxTemp: Int): Boolean {
+        try {
+            val response = client.post {
+                url("$apiUrl/setMaxTemp")
+                contentType(ContentType.Application.Json)
+                setBody("""{"maxTemp":$maxTemp}""")
+            }
+            if (response.status.value in 200..299) {
+                return true
+            } else {
+                throw Exception(response.status.description)
+            }
+        } catch (e: Exception) {
+            println(e.message)
+            throw e
+
         }
     }
 
@@ -76,7 +83,6 @@ class ApiClient(
         val response = client.post {
             url("$apiUrl/setMinTemp")
         }
-        client.close()
         if (response.status.value in 200..299) {
             return
         } else {
@@ -88,7 +94,6 @@ class ApiClient(
         val response = client.post {
             url("$apiUrl/setMorningTime")
         }
-        client.close()
         if (response.status.value in 200..299) {
             return
         } else {
@@ -100,7 +105,6 @@ class ApiClient(
         val response = client.post {
             url("$apiUrl/setNightTime")
         }
-        client.close()
         if (response.status.value in 200..299) {
             return
         } else {
@@ -112,7 +116,6 @@ class ApiClient(
         val response = client.post {
             url("$apiUrl/setNightTempDifference")
         }
-        client.close()
         if (response.status.value in 200..299) {
             return
         } else {
@@ -124,7 +127,6 @@ class ApiClient(
         val response = client.post {
             url("$apiUrl/setHealthCheck")
         }
-        client.close()
         if (response.status.value in 200..299) {
             return
         } else {
@@ -136,7 +138,6 @@ class ApiClient(
         val response = client.post {
             url("$apiUrl/resetDefaults")
         }
-        client.close()
         if (response.status.value in 200..299) {
             return
         } else {
@@ -148,7 +149,6 @@ class ApiClient(
         val response = client.post {
             url("$apiUrl/setHeartbeatPeriod")
         }
-        client.close()
         if (response.status.value in 200..299) {
             return
         } else {
