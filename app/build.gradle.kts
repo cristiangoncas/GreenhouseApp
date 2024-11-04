@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.mock)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.navigation.compose)
 
     testImplementation(project(":app"))
     testImplementation(libs.junit)
