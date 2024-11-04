@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cristiangoncas.greenhousemonitor.BuildConfig
 import com.cristiangoncas.greenhousemonitor.business.client.ApiClient
 import com.cristiangoncas.greenhousemonitor.business.entity.LogEntry
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
 
-    private val apiClient = ApiClient()
+    private val apiClient = ApiClient(apiUrl = BuildConfig.API_IP)
 
      private var _state = MutableStateFlow(UiState())
 

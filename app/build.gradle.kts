@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.cristiangoncas.greenhousemonitor"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.cristiangoncas.greenhousemonitor"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -47,6 +47,8 @@ android {
         compose = true
         buildConfig = true
     }
+
+
 }
 
 dependencies {
@@ -63,9 +65,14 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.mock)
     implementation(libs.kotlinx.serialization.json)
 
+    testImplementation(project(":app"))
     testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
