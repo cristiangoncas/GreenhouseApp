@@ -55,7 +55,7 @@ class HeartbeatViewModel : ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val intMinTemp = minTemp.toIntOrNull() ?: 0
-                if (intMinTemp in 10..15) {
+                if (intMinTemp in 12..18) {
                     apiClient.setMinTemp(intMinTemp)
                     _state.value = _state.value
                         .copy(errors = _state.value.errors - "minTemp")
@@ -65,7 +65,7 @@ class HeartbeatViewModel : ViewModel() {
                         UiState(
                             heartBeat = state.value.heartBeat,
                             loading = false,
-                            errors = mapOf("minTemp" to "Temperature out of range, must be between 10 and 15")
+                            errors = mapOf("minTemp" to "Temperature out of range, must be between 12 and 18")
                         )
                 }
             }
@@ -135,13 +135,42 @@ class HeartbeatViewModel : ViewModel() {
         }
     }
 
-    fun setResetDefaults() {
+    fun requestHealthCheck() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                apiClient.resetDefaults()
-                _state.value = _state.value
-                    .copy(errors = _state.value.errors - "resetDefaults")
-                    .copy(heartBeat = HeartBeat())
+                try {
+                    apiClient.setHealthCheck()
+                    _state.value = _state.value
+                        .copy(errors = _state.value.errors - "setHealthCheck")
+                        .copy(heartBeat = HeartBeat())
+                } catch (e: Exception) {
+                    _state.value =
+                        UiState(
+                            heartBeat = state.value.heartBeat,
+                            loading = false,
+                            errors = mapOf("setHealthCheck" to "Something went wrong: ${e.message}")
+                        )
+                }
+            }
+        }
+    }
+
+    fun resetDefaults() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    apiClient.resetDefaults()
+                    _state.value = _state.value
+                        .copy(errors = _state.value.errors - "resetDefaults")
+                        .copy(heartBeat = HeartBeat())
+                } catch (e: Exception) {
+                    _state.value =
+                        UiState(
+                            heartBeat = state.value.heartBeat,
+                            loading = false,
+                            errors = mapOf("resetDefaults" to "Something went wrong: ${e.message}")
+                        )
+                }
             }
         }
     }

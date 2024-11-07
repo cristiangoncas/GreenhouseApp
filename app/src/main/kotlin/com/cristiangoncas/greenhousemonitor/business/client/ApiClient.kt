@@ -60,16 +60,14 @@ class ApiClient(
         }
     }
 
-    override suspend fun setMaxTemp(maxTemp: Int): Boolean {
+    override suspend fun setMaxTemp(maxTemp: Int) {
         try {
             val response = client.post {
                 url("$apiUrl/setMaxTemp")
                 contentType(ContentType.Application.Json)
                 setBody("""{"maxTemp":$maxTemp}""")
             }
-            if (response.status.value in 200..299) {
-                return true
-            } else {
+            if (response.status.value !in 200..299) {
                 throw Exception(response.status.description)
             }
         } catch (e: Exception) {
@@ -82,10 +80,10 @@ class ApiClient(
     override suspend fun setMinTemp(minTemp: Int) {
         val response = client.post {
             url("$apiUrl/setMinTemp")
+            contentType(ContentType.Application.Json)
+            setBody("""{"minTemp":$minTemp}""")
         }
-        if (response.status.value in 200..299) {
-            return
-        } else {
+        if (response.status.value !in 200..299) {
             throw Exception(response.status.description)
         }
     }
@@ -93,10 +91,10 @@ class ApiClient(
     override suspend fun setMorningTime(morningTime: Int) {
         val response = client.post {
             url("$apiUrl/setMorningTime")
+            contentType(ContentType.Application.Json)
+            setBody("""{"morningTime":$morningTime}""")
         }
-        if (response.status.value in 200..299) {
-            return
-        } else {
+        if (response.status.value !in 200..299) {
             throw Exception(response.status.description)
         }
     }
@@ -104,10 +102,10 @@ class ApiClient(
     override suspend fun setNightTime(nightTime: Int) {
         val response = client.post {
             url("$apiUrl/setNightTime")
+            contentType(ContentType.Application.Json)
+            setBody("""{"nightTime":$nightTime}""")
         }
-        if (response.status.value in 200..299) {
-            return
-        } else {
+        if (response.status.value !in 200..299) {
             throw Exception(response.status.description)
         }
     }
@@ -115,10 +113,10 @@ class ApiClient(
     override suspend fun setNightTempDifference(tempDifference: Int) {
         val response = client.post {
             url("$apiUrl/setNightTempDifference")
+            contentType(ContentType.Application.Json)
+            setBody("""{"nightTempDifference":$tempDifference}""".trimMargin())
         }
-        if (response.status.value in 200..299) {
-            return
-        } else {
+        if (response.status.value !in 200..299) {
             throw Exception(response.status.description)
         }
     }
@@ -126,10 +124,10 @@ class ApiClient(
     override suspend fun setHealthCheck() {
         val response = client.post {
             url("$apiUrl/setHealthCheck")
+            contentType(ContentType.Application.Json)
+            setBody("""{"healthCheck":1}""")
         }
-        if (response.status.value in 200..299) {
-            return
-        } else {
+        if (response.status.value !in 200..299) {
             throw Exception(response.status.description)
         }
     }
@@ -137,10 +135,10 @@ class ApiClient(
     override suspend fun resetDefaults() {
         val response = client.post {
             url("$apiUrl/resetDefaults")
+            contentType(ContentType.Application.Json)
+            setBody("""{"resetDefaults":1}""")
         }
-        if (response.status.value in 200..299) {
-            return
-        } else {
+        if (response.status.value !in 200..299) {
             throw Exception(response.status.description)
         }
     }
@@ -148,10 +146,10 @@ class ApiClient(
     override suspend fun setHeartbeatPeriod(heartbeatPeriod: Int) {
         val response = client.post {
             url("$apiUrl/setHeartbeatPeriod")
+            contentType(ContentType.Application.Json)
+            setBody("""{"heartbeatPeriod":$heartbeatPeriod}""")
         }
-        if (response.status.value in 200..299) {
-            return
-        } else {
+        if (response.status.value !in 200..299) {
             throw Exception(response.status.description)
         }
     }

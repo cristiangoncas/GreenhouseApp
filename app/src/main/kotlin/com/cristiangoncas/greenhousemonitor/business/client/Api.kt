@@ -11,7 +11,7 @@ interface Api {
 
     suspend fun nextHeartBeat(): HeartBeat
 
-    suspend fun setMaxTemp(maxTemp: Int): Boolean
+    suspend fun setMaxTemp(maxTemp: Int)
 
     suspend fun setMinTemp(minTemp: Int)
 
