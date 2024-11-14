@@ -1,4 +1,4 @@
-package com.cristiangoncas.greenhousemonitor.business.client
+package com.cristiangoncas.greenhousemonitor.domain.client
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -18,18 +18,18 @@ class ApiClientTest {
         val mockEngine = MockEngine { request ->
             respond(
                 content = """[
-                        {
-                            "data": "65.00",
-                            "event": "humidRead",
-                            "id": 21321,
-                            "time": "2024-10-30 17:07:38"
-                        },
-                        {
-                            "data": "20.00",
-                            "event": "tempRead",
-                            "id": 21320,
-                            "time": "2024-10-30 17:07:38"
-                        }
+                      {
+                        "data": "75.00",
+                        "event": "humidRead",
+                        "id": 25964,
+                        "time": "2024-11-12 12:54:07"
+                      },
+                      {
+                        "data": "20.00",
+                        "event": "tempRead",
+                        "id": 25963,
+                        "time": "2024-11-12 12:54:07"
+                      }
                 ]""",
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json")
@@ -40,9 +40,9 @@ class ApiClientTest {
         val logs = apiClient.getLogs24h()
         assert(logs.size == 2)
         val log = logs[0]
-        assert(log.id == 21321)
+        assert(log.id == 25964)
         val log1 = logs[1]
-        assert(log1.id == 21320)
+        assert(log1.id == 25963)
     }
 
     @Test

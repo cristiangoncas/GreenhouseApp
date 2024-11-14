@@ -1,13 +1,14 @@
-package com.cristiangoncas.greenhousemonitor.business.client
+package com.cristiangoncas.greenhousemonitor.domain.client
 
-import com.cristiangoncas.greenhousemonitor.business.entity.HeartBeat
-import com.cristiangoncas.greenhousemonitor.business.entity.LogEntry
+import com.cristiangoncas.greenhousemonitor.domain.entity.HeartBeat
+import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
+import com.cristiangoncas.greenhousemonitor.domain.entity.RemoteLogEntry
 
 interface Api {
 
-    suspend fun getLogs24h(): List<LogEntry>
+    suspend fun getLogs24h(): List<RemoteLogEntry>
 
-    suspend fun getAllLogs(): List<LogEntry>
+    suspend fun getAllLogs(): List<RemoteLogEntry>
 
     suspend fun nextHeartBeat(): HeartBeat
 

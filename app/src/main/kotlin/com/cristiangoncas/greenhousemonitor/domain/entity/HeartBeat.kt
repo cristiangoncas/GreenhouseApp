@@ -1,4 +1,4 @@
-package com.cristiangoncas.greenhousemonitor.business.entity
+package com.cristiangoncas.greenhousemonitor.domain.entity
 
 import kotlinx.serialization.Serializable
 

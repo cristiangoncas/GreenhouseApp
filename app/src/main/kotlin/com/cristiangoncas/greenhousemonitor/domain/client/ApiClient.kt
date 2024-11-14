@@ -1,27 +1,24 @@
-package com.cristiangoncas.greenhousemonitor.business.client
+package com.cristiangoncas.greenhousemonitor.domain.client
 
-import com.cristiangoncas.greenhousemonitor.business.entity.HeartBeat
-import com.cristiangoncas.greenhousemonitor.business.entity.LogEntry
+import com.cristiangoncas.greenhousemonitor.domain.entity.HeartBeat
+import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
+import com.cristiangoncas.greenhousemonitor.domain.entity.RemoteLogEntry
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
-import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 class ApiClient(
     private val client: HttpClient = HttpClient(),
     private val apiUrl: String
 ) : Api {
 
-    override suspend fun getLogs24h(): List<LogEntry> {
+    override suspend fun getLogs24h(): List<RemoteLogEntry> {
         val response = client.get {
             url("$apiUrl/fetchLogs")
         }
@@ -32,7 +29,7 @@ class ApiClient(
         }
     }
 
-    override suspend fun getAllLogs(): List<LogEntry> {
+    override suspend fun getAllLogs(): List<RemoteLogEntry> {
         val response = client.get {
             url("$apiUrl/fetchAllLogs")
         }
