@@ -9,7 +9,10 @@ import com.cristiangoncas.greenhousemonitor.domain.entity.RawLogEntry
 @Dao
 interface RawLogDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertRawLog(rawLog: RawLogEntry)
+    fun insertRawLogs(rawLogs: List<RawLogEntry>)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertRawLog(rawLogs: RawLogEntry)
 
     @Query("SELECT * FROM RawLogEntry")
     fun fetchAllRawLogs(): List<RawLogEntry>

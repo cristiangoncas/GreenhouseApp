@@ -2,21 +2,25 @@ package com.cristiangoncas.greenhousemonitor.domain.data.repository
 
 import com.cristiangoncas.greenhousemonitor.domain.client.ApiClient
 import com.cristiangoncas.greenhousemonitor.domain.data.local.GreenhouseDB
-import com.cristiangoncas.greenhousemonitor.domain.entity.Event
+import com.cristiangoncas.greenhousemonitor.domain.entity.Averages
 import com.cristiangoncas.greenhousemonitor.domain.entity.HeartBeat
 import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
 import com.cristiangoncas.greenhousemonitor.domain.entity.RawLogEntry
-import com.cristiangoncas.greenhousemonitor.domain.entity.RemoteLogEntry
-import com.cristiangoncas.greenhousemonitor.domain.entity.TimestampSerializer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 import java.util.TimeZone
 
 interface GreenhouseRepository {
 
-    suspend fun getLogs24h(): List<LogEntry>
+    suspend fun getLogs24h(): Flow<List<LogEntry>>
 
-    suspend fun getAllLogs(): List<LogEntry>
+    suspend fun getAllLogs(): Flow<List<LogEntry>>
 
     suspend fun nextHeartBeat(): HeartBeat
 
@@ -36,24 +40,22 @@ interface GreenhouseRepository {
 
     suspend fun setHeartbeatPeriod(heartbeatPeriod: Int)
 
+    suspend fun fetchAveragesByPeriodOfTime(period: Long): Flow<Averages>
+
 }
 
 class GreenhouseRepositoryImpl(private val api: ApiClient, private val db: GreenhouseDB) :
     GreenhouseRepository {
 
-    override suspend fun getLogs24h(): List<LogEntry> {
-        val logs = api.getLogs24h()
-        db.runInTransaction {
-            logs.forEach { remoteLogEntry ->
-                val rawLogEntry = RawLogEntry.fromRemoteLogEntry(remoteLogEntry)
-                db.rawLogEntryDao().insertRawLog(rawLogEntry)
-            }
+    override suspend fun getLogs24h(): Flow<List<LogEntry>> {
+        CoroutineScope(Dispatchers.IO).launch {
+            fetchRemoteRawLogs24h()
         }
-        processRawLogs()
-        return db.logEntryDao().fetchAllLogs()
+        val last24h = Instant.now().minus(1, ChronoUnit.DAYS)
+        return db.logEntryDao().fetchLogEntriesLast24hFromPointInTime(last24h.toEpochMilli())
     }
 
-    override suspend fun getAllLogs(): List<LogEntry> {
+    override suspend fun getAllLogs(): Flow<List<LogEntry>> {
         TODO("Not yet implemented")
 //        return api.getAllLogs()
     }
@@ -94,20 +96,37 @@ class GreenhouseRepositoryImpl(private val api: ApiClient, private val db: Green
         api.setHeartbeatPeriod(heartbeatPeriod)
     }
 
+    override suspend fun fetchAveragesByPeriodOfTime(period: Long): Flow<Averages> {
+        return db.logEntryDao().fetchAverageTempByPeriodOfTime(period)
+    }
+
+    private suspend fun fetchRemoteRawLogs24h() {
+        val logs = api.getLogs24h()
+        db.runInTransaction {
+            val lastId = db.logEntryDao().fetchLastLogEntryId()
+
+            val rawLogs = logs.filter { it.id > lastId }
+                .map { RawLogEntry.fromRemoteLogEntry(it) }
+
+            db.rawLogEntryDao().insertRawLogs(rawLogs)
+        }
+        processRawLogs()
+    }
+
     private fun processRawLogs() {
         db.runInTransaction {
             val rawLogs = db.rawLogEntryDao().fetchAllRawLogs()
-            rawLogs.forEach { rawLogEntry ->
-                val entry = LogEntry(
+            val entryLogs = rawLogs.map { rawLogEntry ->
+                LogEntry(
                     id = rawLogEntry.id,
                     timestamp = rawLogEntry.time,
                     date = rawLogEntry.time.toReadableDate(),
                     time = rawLogEntry.time.toReadableTime(),
                     data = rawLogEntry.data,
-                    event = Event.getEventByValue(rawLogEntry.event)
+                    event = rawLogEntry.event
                 )
-                db.logEntryDao().insertLogEntry(entry)
             }
+            db.logEntryDao().insertLogEntries(entryLogs)
         }
     }
 

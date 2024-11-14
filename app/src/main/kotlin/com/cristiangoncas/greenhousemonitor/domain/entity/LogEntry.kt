@@ -11,7 +11,7 @@ data class LogEntry(
     var date: String,
     var time: String,
     var data: String,
-    var event: Event
+    var event: String
 )
 
 enum class Event(val value: String, val label: String) {

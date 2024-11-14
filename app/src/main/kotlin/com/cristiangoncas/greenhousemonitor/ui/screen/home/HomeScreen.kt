@@ -1,6 +1,7 @@
 package com.cristiangoncas.greenhousemonitor.ui.screen.home
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,6 +21,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -30,9 +33,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.cristiangoncas.greenhousemonitor.domain.entity.Averages
 import com.cristiangoncas.greenhousemonitor.domain.entity.Event
 import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
 import com.cristiangoncas.greenhousemonitor.domain.entity.RemoteLogEntry
@@ -46,18 +53,7 @@ fun HomeScreen(viewModel: HomeViewModel, onHeartBeatClicked: () -> Unit) {
     Screen {
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = { Text(text = "Greenhouse Monitor") },
-                    actions = {
-                        IconButton(onClick = onHeartBeatClicked) {
-                            Icon(
-                                imageVector = Icons.Default.Favorite,
-                                contentDescription = "HeartBeat"
-                            )
-
-                        }
-                    }
-                )
+                HomeTopBar(onHeartBeatClicked)
             },
         ) { innerPadding ->
             HomeContent(
@@ -67,6 +63,23 @@ fun HomeScreen(viewModel: HomeViewModel, onHeartBeatClicked: () -> Unit) {
             viewModel.uiReady()
         }
     }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun HomeTopBar(onHeartBeatClicked: () -> Unit) {
+    TopAppBar(
+        title = { Text(text = "Greenhouse Monitor") },
+        actions = {
+            IconButton(onClick = onHeartBeatClicked) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "HeartBeat"
+                )
+
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,6 +116,9 @@ fun HomeContent(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                item {
+                    AveragesComponent(state)
+                }
                 items(state.logs.size) { index ->
                     LogItem(state, index)
                 }
@@ -110,6 +126,68 @@ fun HomeContent(
         }
     }
 }
+
+@Composable
+fun AverageDisplayComponent(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .height(100.dp)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = label,
+            textAlign = TextAlign.Center,
+            fontSize = MaterialTheme.typography.titleMedium.fontSize,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = value,
+            textAlign = TextAlign.Center,
+            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+fun AveragesComponent(state: HomeViewModel.UiState) {
+    Box(
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp), // Optional padding for the entire row
+            horizontalArrangement = Arrangement.SpaceAround // Space evenly between the components
+        ) {
+            AverageDisplayComponent(
+                label = "Avg Temperature 6h",
+                value = state.averages.avgTempRead.toString()
+            )
+
+            AverageDisplayComponent(
+                label = "Avg Humidity 6h",
+                value = state.averages.avgHumidRead.toString()
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewAverages() {
+    val state = HomeViewModel.UiState(
+        loading = false,
+        averages = Averages(
+            avgTempRead = 22f,
+            avgHumidRead = 78f
+        ),
+        logs = emptyList()
+    )
+    AveragesComponent(state)
+}
+
 
 @Composable
 fun LogItem(
@@ -138,7 +216,7 @@ fun LogItem(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.DateRange,
-                        contentDescription = log.event.label
+                        contentDescription = Event.getEventByValue(log.event).label
                     )
                     Column(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -163,7 +241,8 @@ fun LogItem(
                 Row(
 
                 ) {
-                    Text(text = log.event.label + ": ")
+                    val event = Event.getEventByValue(log.event)
+                    Text(text = event.label + ": ")
                     Text(text = log.data)
 
                 }
@@ -184,7 +263,7 @@ fun LogItemsPreview() {
                 date = "12-12-2022",
                 time = "12:12:12",
                 data = "On",
-                event = Event.HEATER
+                event = Event.HEATER.value
             ),
             LogEntry(
                 id = 2,
@@ -192,7 +271,7 @@ fun LogItemsPreview() {
                 date = "12-12-2022",
                 time = "12:12:12",
                 data = "56.00",
-                event = Event.HUMID_READ
+                event = Event.HUMID_READ.value
             ),
             LogEntry(
                 id = 3,
@@ -200,7 +279,7 @@ fun LogItemsPreview() {
                 date = "12-12-2022",
                 time = "12:12:12",
                 data = "18.00",
-                event = Event.TEMP_READ
+                event = Event.TEMP_READ.value
             )
         )
     )
