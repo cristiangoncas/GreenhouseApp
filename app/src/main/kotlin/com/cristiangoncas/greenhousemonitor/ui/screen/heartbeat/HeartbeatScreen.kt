@@ -1,12 +1,9 @@
 package com.cristiangoncas.greenhousemonitor.ui.screen.heartbeat
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.rememberScrollState
@@ -23,7 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
-import com.cristiangoncas.greenhousemonitor.business.entity.HeartBeat
+import com.cristiangoncas.greenhousemonitor.domain.entity.HeartBeat
 import com.cristiangoncas.greenhousemonitor.ui.common.ArrowBackIcon
 import com.cristiangoncas.greenhousemonitor.ui.screen.Screen
 

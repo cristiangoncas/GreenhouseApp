@@ -2,31 +2,59 @@ package com.cristiangoncas.greenhousemonitor.ui.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cristiangoncas.greenhousemonitor.BuildConfig
-import com.cristiangoncas.greenhousemonitor.business.client.ApiClient
-import com.cristiangoncas.greenhousemonitor.business.entity.LogEntry
+import com.cristiangoncas.greenhousemonitor.domain.data.repository.GreenhouseRepository
+import com.cristiangoncas.greenhousemonitor.domain.entity.Averages
+import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(private val repository: GreenhouseRepository) : ViewModel() {
 
-    private val apiClient = ApiClient(apiUrl = BuildConfig.API_IP)
-
-     private var _state = MutableStateFlow(UiState())
-
+    private var _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
 
     fun uiReady() {
-        viewModelScope.launch {
-            val logs = apiClient.getLogs24h()
-            _state.value = UiState(logs = logs, loading = false)
+        // TODO: If the app is opened for the first time:
+        //  - first fetch logs for the last 24h
+        //  - In parallel fetch all logs
+        viewModelScope.launch(Dispatchers.IO) {
+            refresh()
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.value = UiState(loading = true).copy(logs = state.value.logs)
+            val last6h = Instant.now().minus(6, ChronoUnit.HOURS)
+            repository.fetchAveragesByPeriodOfTime(last6h.toEpochMilli())
+                .map {
+                    UiState(averages = it, loading = false)
+                }
+                .collect {
+                    _state.value = _state.value.copy(averages = it.averages).copy(loading = false)
+                }
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.value = UiState(loading = true).copy(logs = state.value.logs)
+            repository.getLogs24h()
+                .map {
+                    UiState(logs = it, loading = false)
+                }
+                .collect {
+                    _state.value = _state.value.copy(logs = it.logs).copy(loading = false)
+                }
         }
     }
 
     data class UiState(
         var loading: Boolean = true,
+        val averages: Averages = Averages(),
         val logs: List<LogEntry> = emptyList(),
     )
 }

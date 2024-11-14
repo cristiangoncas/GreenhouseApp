@@ -3,8 +3,8 @@ package com.cristiangoncas.greenhousemonitor.ui.screen.heartbeat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cristiangoncas.greenhousemonitor.BuildConfig
-import com.cristiangoncas.greenhousemonitor.business.client.ApiClient
-import com.cristiangoncas.greenhousemonitor.business.entity.HeartBeat
+import com.cristiangoncas.greenhousemonitor.domain.client.ApiClient
+import com.cristiangoncas.greenhousemonitor.domain.entity.HeartBeat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +17,8 @@ class HeartbeatViewModel : ViewModel() {
     private val apiClient = ApiClient(apiUrl = BuildConfig.API_IP)
     private var _state = MutableStateFlow(UiState())
 
-    val state: StateFlow<UiState> = _state.asStateFlow()
+    val state: StateFlow<UiState>
+        get() = _state.asStateFlow()
 
     fun uiReady() {
         viewModelScope.launch {
