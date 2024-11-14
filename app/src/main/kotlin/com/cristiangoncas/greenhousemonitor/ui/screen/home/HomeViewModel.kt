@@ -34,7 +34,7 @@ class HomeViewModel(private val repository: GreenhouseRepository) : ViewModel() 
                     UiState(averages = it, loading = false)
                 }
                 .collect {
-                    _state.value = _state.value.copy(averages = it.averages)
+                    _state.value = _state.value.copy(averages = it.averages).copy(loading = false)
                 }
         }
     }
@@ -47,7 +47,7 @@ class HomeViewModel(private val repository: GreenhouseRepository) : ViewModel() 
                     UiState(logs = it, loading = false)
                 }
                 .collect {
-                    _state.value = it
+                    _state.value = _state.value.copy(logs = it.logs).copy(loading = false)
                 }
         }
     }
