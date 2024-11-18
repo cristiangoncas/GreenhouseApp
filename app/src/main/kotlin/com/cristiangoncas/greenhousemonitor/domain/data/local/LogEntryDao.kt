@@ -5,10 +5,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.cristiangoncas.greenhousemonitor.domain.entity.Averages
-import com.cristiangoncas.greenhousemonitor.domain.entity.Event
 import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
 import kotlinx.coroutines.flow.Flow
-import java.util.Calendar
 
 @Dao
 interface LogEntryDao {
@@ -33,4 +31,12 @@ interface LogEntryDao {
             "WHERE (event = 'tempRead' OR event = 'humidRead') \n" +
             "AND timestamp >= :period")
     fun fetchAverageTempByPeriodOfTime(period: Long): Flow<Averages>
+
+    // Method to count the amount of logs. Will be used to do a fetch all logs if empty.
+    @Query("SELECT COUNT(*) == 0 FROM LogEntry")
+    fun areLogsEmpty(): Int
+
+    // Method to check if there are logs older than 24h. If not, will fetch all logs. Need a flag to not keep doing that over an over.
+    @Query("SELECT COUNT(*) == 0 FROM LogEntry WHERE timestamp >= :past24hours")
+    fun availableLogsOlderThan24h(past24hours: Long): Int
 }

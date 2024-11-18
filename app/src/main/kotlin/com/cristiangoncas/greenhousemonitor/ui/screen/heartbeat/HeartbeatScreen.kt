@@ -69,7 +69,10 @@ fun HeartbeatContent(
         ActionItem(
             label = "Request health check",
             error = state.errors["setHealthCheck"] ?: "",
-            sendAction = { viewModel.requestHealthCheck() },
+            sendAction = {
+                viewModel.requestHealthCheck()
+                // Disable button and update UI accordingly to avoid multiple clicks
+            },
         )
         ActionItem(
             label = "Reset defaults",

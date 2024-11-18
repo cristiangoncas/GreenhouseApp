@@ -15,6 +15,8 @@ import com.cristiangoncas.greenhousemonitor.domain.data.repository.GreenhouseRep
 import com.cristiangoncas.greenhousemonitor.ui.screen.heartbeat.HeartBeatScreen
 import com.cristiangoncas.greenhousemonitor.ui.screen.home.HomeScreen
 import com.cristiangoncas.greenhousemonitor.ui.screen.home.HomeViewModel
+import com.cristiangoncas.greenhousemonitor.ui.screen.logs.LogsScreen
+import com.cristiangoncas.greenhousemonitor.ui.screen.logs.LogsViewModel
 
 @Composable
 fun Navigation() {
@@ -31,7 +33,15 @@ fun Navigation() {
                 viewModel = viewModel {
                     HomeViewModel(logRepository)
                 },
-                onHeartBeatClicked = { navController.navigate(Screen.HeartBeat.route) }
+                onHeartBeatClicked = { navController.navigate(Screen.HeartBeat.route) },
+                onLogsClicked = { navController.navigate(Screen.Logs.route) }
+            )
+        }
+        composable(route = Screen.Logs.route) {
+            LogsScreen(
+                viewModel = viewModel {
+                    LogsViewModel(logRepository)
+                }
             )
         }
         composable(route = Screen.HeartBeat.route) {
@@ -46,4 +56,5 @@ fun Navigation() {
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
     data object HeartBeat : Screen("heartbeat")
+    data object Logs : Screen("logs")
 }

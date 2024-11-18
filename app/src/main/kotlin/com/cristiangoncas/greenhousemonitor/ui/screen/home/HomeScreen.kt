@@ -1,7 +1,6 @@
 package com.cristiangoncas.greenhousemonitor.ui.screen.home
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -33,8 +32,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,32 +39,35 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cristiangoncas.greenhousemonitor.domain.entity.Averages
 import com.cristiangoncas.greenhousemonitor.domain.entity.Event
 import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
-import com.cristiangoncas.greenhousemonitor.domain.entity.RemoteLogEntry
 import com.cristiangoncas.greenhousemonitor.ui.screen.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, onHeartBeatClicked: () -> Unit) {
+fun HomeScreen(
+    viewModel: HomeViewModel,
+    onHeartBeatClicked: () -> Unit,
+    onLogsClicked: () -> Unit
+) {
 
     Screen {
         Scaffold(
             topBar = {
-                HomeTopBar(onHeartBeatClicked)
+                HomeTopBar(onHeartBeatClicked, onLogsClicked)
             },
         ) { innerPadding ->
             HomeContent(
                 innerPadding = innerPadding,
                 viewModel = viewModel
             )
-            viewModel.uiReady()
+            viewModel.onUiReady()
         }
     }
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun HomeTopBar(onHeartBeatClicked: () -> Unit) {
+private fun HomeTopBar(onHeartBeatClicked: () -> Unit, onLogsClicked: () -> Unit) {
     TopAppBar(
         title = { Text(text = "Greenhouse Monitor") },
         actions = {
@@ -76,7 +76,12 @@ private fun HomeTopBar(onHeartBeatClicked: () -> Unit) {
                     imageVector = Icons.Default.Favorite,
                     contentDescription = "HeartBeat"
                 )
-
+            }
+            IconButton(onClick = onLogsClicked) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Logs"
+                )
             }
         }
     )
@@ -113,16 +118,7 @@ fun HomeContent(
                     onRefresh = { viewModel.refresh() }
                 )
         ) {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                item {
-                    AveragesComponent(state)
-                }
-                items(state.logs.size) { index ->
-                    LogItem(state, index)
-                }
-            }
+            AveragesComponent(state)
         }
     }
 }
@@ -182,122 +178,7 @@ fun PreviewAverages() {
         averages = Averages(
             avgTempRead = 22f,
             avgHumidRead = 78f
-        ),
-        logs = emptyList()
-    )
-    AveragesComponent(state)
-}
-
-
-@Composable
-fun LogItem(
-    state: HomeViewModel.UiState,
-    index: Int
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 28.dp, vertical = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(12.dp)
-        ) {
-            val log = state.logs[index]
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(6.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.DateRange,
-                        contentDescription = Event.getEventByValue(log.event).label
-                    )
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            modifier = Modifier,
-                            text = log.time
-                        )
-                        Text(
-                            modifier = Modifier,
-                            text = log.date
-                        )
-                    }
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(6.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-
-                ) {
-                    val event = Event.getEventByValue(log.event)
-                    Text(text = event.label + ": ")
-                    Text(text = log.data)
-
-                }
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LogItemsPreview() {
-    val uiState = HomeViewModel.UiState(
-        loading = false,
-        logs = listOf(
-            LogEntry(
-                id = 1,
-                timestamp = 0,
-                date = "12-12-2022",
-                time = "12:12:12",
-                data = "On",
-                event = Event.HEATER.value
-            ),
-            LogEntry(
-                id = 2,
-                timestamp = 0,
-                date = "12-12-2022",
-                time = "12:12:12",
-                data = "56.00",
-                event = Event.HUMID_READ.value
-            ),
-            LogEntry(
-                id = 3,
-                timestamp = 0,
-                date = "12-12-2022",
-                time = "12:12:12",
-                data = "18.00",
-                event = Event.TEMP_READ.value
-            )
         )
     )
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(uiState.logs.size) { index ->
-            LogItem(uiState, index)
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeContentLoadingPreview() {
-    val uiState = HomeViewModel.UiState(
-        loading = true,
-        logs = listOf()
-    )
-    HomeScreen(viewModel = viewModel(), onHeartBeatClicked = {})
+    AveragesComponent(state)
 }
