@@ -11,12 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,62 +32,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cristiangoncas.greenhousemonitor.domain.entity.Averages
-import com.cristiangoncas.greenhousemonitor.domain.entity.Event
-import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
 import com.cristiangoncas.greenhousemonitor.ui.screen.Screen
 
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel,
-    onHeartBeatClicked: () -> Unit,
-    onLogsClicked: () -> Unit
+    viewModel: HomeViewModel, innerPadding: PaddingValues
 ) {
-
     Screen {
-        Scaffold(
-            topBar = {
-                HomeTopBar(onHeartBeatClicked, onLogsClicked)
-            },
-        ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 8.dp),
+                text = "Greenhouse Monitor",
+                textAlign = TextAlign.Center
+            )
             HomeContent(
-                innerPadding = innerPadding,
                 viewModel = viewModel
             )
-            viewModel.onUiReady()
         }
     }
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun HomeTopBar(onHeartBeatClicked: () -> Unit, onLogsClicked: () -> Unit) {
-    TopAppBar(
-        title = { Text(text = "Greenhouse Monitor") },
-        actions = {
-            IconButton(onClick = onHeartBeatClicked) {
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = "HeartBeat"
-                )
-            }
-            IconButton(onClick = onLogsClicked) {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Logs"
-                )
-            }
-        }
-    )
+    viewModel.onUiReady()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeContent(
-    innerPadding: PaddingValues,
     viewModel: HomeViewModel
 ) {
     val state by viewModel.state.collectAsState()
@@ -98,7 +71,6 @@ fun HomeContent(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
         ) {
             CircularProgressIndicator(
                 modifier = Modifier
@@ -111,7 +83,6 @@ fun HomeContent(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .pullToRefresh(
                     isRefreshing = false,
                     state = pullRefreshState,

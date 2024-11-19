@@ -3,7 +3,9 @@ package com.cristiangoncas.greenhousemonitor.ui.screen.logs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -20,19 +21,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cristiangoncas.greenhousemonitor.domain.entity.Event
 import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
 import com.cristiangoncas.greenhousemonitor.ui.screen.Screen
 
 @Composable
-fun LogsScreen(viewModel: LogsViewModel) {
+fun LogsScreen(
+    viewModel: LogsViewModel, innerPadding: PaddingValues
+) {
     val state by viewModel.state.collectAsState()
 
     Screen {
-        Scaffold(
-        ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
             LazyColumn(
                 contentPadding = innerPadding,
+                modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(state.logs.size) { index ->
@@ -42,6 +49,15 @@ fun LogsScreen(viewModel: LogsViewModel) {
             viewModel.refresh()
         }
     }
+}
+
+@Preview
+@Composable
+fun LogsScreenPreview() {
+    LogsScreen(
+        viewModel = viewModel(),
+        innerPadding = PaddingValues(0.dp)
+    )
 }
 
 @Composable
