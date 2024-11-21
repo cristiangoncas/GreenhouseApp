@@ -19,12 +19,10 @@ class LogsViewModel(private val repository: GreenhouseRepository) : ViewModel() 
     val state = _state.asStateFlow()
 
     fun onUiReady() {
-        println("VM: Logs - OnUiReady")
         refresh()
     }
 
     fun refresh() {
-        println("VM: Logs - Refreshing")
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { currentState ->
                 currentState.copy(loading = true)

@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.Button
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -24,58 +24,57 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role.Companion.Button
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cristiangoncas.greenhousemonitor.domain.entity.Averages
 import com.cristiangoncas.greenhousemonitor.ui.screen.Screen
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel, innerPadding: PaddingValues
 ) {
-
     val state by viewModel.state.collectAsState()
-    val pullToRefreshState = rememberPullToRefreshState()
     val onRefresh = {
-        println("Refreshing...")
         viewModel.refresh()
     }
     Screen {
-        if (state.loading) {
-            Loading()
-        } else {
-            Box(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-                    .pullToRefresh(
-                        isRefreshing = state.loading,
-                        state = pullToRefreshState,
-                        onRefresh = onRefresh
-                    )
-            ) {
-                Column {
-                    Button(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(16.dp),
-                        onClick = {
-                            viewModel.refresh()
-                        }
-                    ) {
-                        Text(text = "Refresh")
-                    }
-                    AveragesComponent(state)
-                }
-            }
-        }
-
+        HomeContent(innerPadding, state, onRefresh)
     }
     LaunchedEffect(Unit) {
         viewModel.onUiReady()
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeContent(
+    innerPadding: PaddingValues,
+    state: HomeViewModel.UiState,
+    onRefresh: () -> Unit,
+) {
+    val pullToRefreshState = rememberPullToRefreshState()
+    if (state.loading) {
+        Loading()
+    } else {
+        Box(
+            modifier = Modifier
+                .padding(8.dp)
+                .padding(top = 56.dp)
+                .fillMaxSize()
+                .pullToRefresh(
+                    isRefreshing = state.loading,
+                    state = pullToRefreshState,
+                    onRefresh = onRefresh
+                )
+        ) {
+            Column(
+                Modifier
+                    .verticalScroll(rememberScrollState())
+            ) {
+                AveragesComponent(state)
+            }
+        }
     }
 }
 
