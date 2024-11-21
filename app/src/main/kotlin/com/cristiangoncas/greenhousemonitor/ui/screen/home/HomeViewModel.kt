@@ -23,10 +23,12 @@ class HomeViewModel(private val repository: GreenhouseRepository) : ViewModel() 
     val state = _state.asStateFlow()
 
     fun onUiReady() {
+        println("VM: Home - OnUiReady")
         refresh()
     }
 
     fun refresh() {
+        println("VM: Home - Refreshing")
         _state.update { currentState ->
             currentState.copy(loading = true)
         }

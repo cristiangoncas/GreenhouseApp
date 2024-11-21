@@ -15,7 +15,7 @@ class HeartbeatViewModel(private val repository: GreenhouseRepository) : ViewMod
     private var _state = MutableStateFlow(UiState())
     val state = _state.asStateFlow()
 
-    fun uiReady() {
+    fun onUiReady() {
         viewModelScope.launch {
             val heartBeat = repository.nextHeartBeat()
             _state.value =
