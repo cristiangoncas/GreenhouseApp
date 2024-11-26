@@ -1,8 +1,9 @@
 package com.cristiangoncas.greenhousemonitor.ui.navigation
 
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Text
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
@@ -14,12 +15,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    BottomNavigation {
+    NavigationBar {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination?.route
 
-        BottomNavigationItem(
-            icon = { BottomNavItem.Home.icon },
+        NavigationBarItem(
+            icon = { Icon(BottomNavItem.Home.icon, contentDescription = "Home") },
             label = { Text(BottomNavItem.Home.name) },
             selected = currentDestination == BottomNavItem.Home.route,
             onClick = {
@@ -32,8 +33,8 @@ fun BottomNavigationBar(navController: NavController) {
                 }
             }
         )
-        BottomNavigationItem(
-            icon = { BottomNavItem.Logs.icon },
+        NavigationBarItem(
+            icon = { Icon(BottomNavItem.Logs.icon, contentDescription = "Logs") },
             label = { Text(BottomNavItem.Logs.name) },
             selected = currentDestination == BottomNavItem.Logs.route,
             onClick = {
@@ -46,10 +47,10 @@ fun BottomNavigationBar(navController: NavController) {
                 }
             }
         )
-        BottomNavigationItem(
-            icon = { BottomNavItem.Heartbeat.icon },
+        NavigationBarItem(
+            icon = { Icon(BottomNavItem.Heartbeat.icon, contentDescription = "Heartbeat") },
             label = { Text(BottomNavItem.Heartbeat.name) },
-            selected = currentDestination == BottomNavItem.Logs.route,
+            selected = currentDestination == BottomNavItem.Heartbeat.route,
             onClick = {
                 navController.navigate(BottomNavItem.Heartbeat.route) {
                     launchSingleTop = true
