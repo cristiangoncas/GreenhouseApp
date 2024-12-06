@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.cristiangoncas.greenhousemonitor.domain.entity.Averages
+import com.cristiangoncas.greenhousemonitor.domain.entity.AverageTempHumid
+import com.cristiangoncas.greenhousemonitor.domain.entity.Event
+import com.cristiangoncas.greenhousemonitor.domain.entity.HeaterOnOffCounts
 import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
 import kotlinx.coroutines.flow.Flow
 
@@ -23,14 +25,20 @@ interface LogEntryDao {
     @Query("SELECT * FROM LogEntry WHERE timestamp >= :past24hours ORDER BY id DESC")
     fun fetchLogEntriesLast24hFromPointInTime(past24hours: Long): Flow<List<LogEntry>>
 
-    // Method to fetch logs from the last 6h, for a given event (tempRead for example), summing up the values and returning the average.
     @Query("SELECT \n" +
             "    ROUND(AVG(CASE WHEN event = 'tempRead' THEN CAST(REPLACE(data, '.', '') AS REAL) / 100.0 END), 2) AS avgTempRead,\n" +
             "    ROUND(AVG(CASE WHEN event = 'humidRead' THEN CAST(REPLACE(data, '.', '') AS REAL) / 100.0 END), 2) AS avgHumidRead\n" +
             "FROM LogEntry \n" +
             "WHERE (event = 'tempRead' OR event = 'humidRead') \n" +
             "AND timestamp >= :period")
-    fun fetchAverageTempByPeriodOfTime(period: Long): Flow<Averages>
+    fun fetchAverageTempByPeriodOfTime(period: Long): Flow<AverageTempHumid>
+
+    @Query("SELECT " +
+            "SUM(CASE WHEN event = 'heater' AND data = 'On' THEN 1 ELSE 0 END) AS heaterOnCount, " +
+            "SUM(CASE WHEN event = 'heater' AND data = 'Off' THEN 1 ELSE 0 END) AS heaterOffCount " +
+            "FROM LogEntry " +
+            "WHERE event = 'heater' AND timestamp >= :period")
+    fun fetchEventsByPeriodOfTime(period: Long): Flow<HeaterOnOffCounts>
 
     // Method to count the amount of logs. Will be used to do a fetch all logs if empty.
     @Query("SELECT COUNT(*) == 0 FROM LogEntry")

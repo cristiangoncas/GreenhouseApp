@@ -27,7 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cristiangoncas.greenhousemonitor.domain.entity.Averages
+import com.cristiangoncas.greenhousemonitor.domain.entity.Average
+import com.cristiangoncas.greenhousemonitor.domain.entity.AverageTempHumid
 import com.cristiangoncas.greenhousemonitor.ui.screen.Screen
 
 @Composable
@@ -72,7 +73,15 @@ fun HomeContent(
                 Modifier
                     .verticalScroll(rememberScrollState())
             ) {
-                AveragesComponent(state)
+                state.averages?.let { averages ->
+                    AveragesComponent(averages.avg12h)
+                    AveragesComponent(averages.avg24h)
+                    AveragesComponent(averages.avg48h)
+                }
+
+                state.events?.let { events ->
+                    EventCountComponent(events.heaterOn.event, events.heaterOn.count, events.heaterOn.hours)
+                }
             }
         }
     }
@@ -122,10 +131,7 @@ fun AverageDisplayComponent(label: String, value: String, modifier: Modifier = M
 }
 
 @Composable
-fun AveragesComponent(state: HomeViewModel.UiState) {
-//    Box(
-//        contentAlignment = Alignment.Center
-//    ) {
+fun AveragesComponent(average: Average) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -133,27 +139,65 @@ fun AveragesComponent(state: HomeViewModel.UiState) {
         horizontalArrangement = Arrangement.SpaceAround // Space evenly between the components
     ) {
         AverageDisplayComponent(
-            label = "Avg Temperature 6h",
-            value = state.averages.avgTempRead.toString()
+            label = "Avg Temperature ${average.hours}h",
+            value = average.avgTemp.toString()
         )
 
         AverageDisplayComponent(
-            label = "Avg Humidity 6h",
-            value = state.averages.avgHumidRead.toString()
+            label = "Avg Humidity ${average.hours}h",
+            value = average.avgHumid.toString()
         )
     }
 //    }
 }
 
+@Composable
+fun EventCountComponent(event: String, count: Int, hours: Int) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "$event events - ${hours}h",
+            textAlign = TextAlign.Center,
+            fontSize = MaterialTheme.typography.titleMedium.fontSize,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = count.toString(),
+            textAlign = TextAlign.Center,
+            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EventCountComponentPreview() {
+    EventCountComponent(event = "Heater on", count = 2, hours = 24)
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewAverages() {
-    val state = HomeViewModel.UiState(
-        loading = false,
-        averages = Averages(
-            avgTempRead = 22f,
-            avgHumidRead = 78f
+    Column {
+        AveragesComponent(
+            Average(
+                avgTemp = 22f,
+                avgHumid = 78f,
+                hours = 6
+            )
         )
-    )
-    AveragesComponent(state)
+        AveragesComponent(
+            Average(
+                avgTemp = 22f,
+                avgHumid = 78f,
+                hours = 12
+            )
+        )
+    }
 }
