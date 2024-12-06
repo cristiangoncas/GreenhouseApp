@@ -1,10 +1,10 @@
-package com.cristiangoncas.greenhousemonitor.domain.data.local
+package com.cristiangoncas.greenhousemonitor.data.local.db
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.cristiangoncas.greenhousemonitor.domain.entity.RawLogEntry
+import com.cristiangoncas.greenhousemonitor.data.local.model.RawLogEntry
 
 @Dao
 interface RawLogDao {

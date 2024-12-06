@@ -1,8 +1,7 @@
-package com.cristiangoncas.greenhousemonitor.domain.client
+package com.cristiangoncas.greenhousemonitor.data.remote.client
 
-import com.cristiangoncas.greenhousemonitor.domain.entity.HeartBeat
-import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
-import com.cristiangoncas.greenhousemonitor.domain.entity.RemoteLogEntry
+import com.cristiangoncas.greenhousemonitor.data.local.model.HeartBeat
+import com.cristiangoncas.greenhousemonitor.data.remote.model.RemoteLogEntry
 
 interface Api {
 

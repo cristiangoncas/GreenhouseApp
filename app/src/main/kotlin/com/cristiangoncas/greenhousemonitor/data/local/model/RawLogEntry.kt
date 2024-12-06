@@ -1,7 +1,8 @@
-package com.cristiangoncas.greenhousemonitor.domain.entity
+package com.cristiangoncas.greenhousemonitor.data.local.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.cristiangoncas.greenhousemonitor.data.remote.model.RemoteLogEntry
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -10,7 +11,6 @@ import java.util.TimeZone
 data class RawLogEntry(
     @PrimaryKey
     var id: Int,
-//    @Serializable(with = TimestampSerializer::class)
     var time: Long,
     var data: String,
     var event: String,

@@ -1,13 +1,12 @@
-package com.cristiangoncas.greenhousemonitor.domain.data.local
+package com.cristiangoncas.greenhousemonitor.data.local.db
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.cristiangoncas.greenhousemonitor.domain.entity.AverageTempHumid
-import com.cristiangoncas.greenhousemonitor.domain.entity.Event
-import com.cristiangoncas.greenhousemonitor.domain.entity.HeaterOnOffCounts
-import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
+import com.cristiangoncas.greenhousemonitor.data.local.model.AverageTempHumid
+import com.cristiangoncas.greenhousemonitor.data.local.model.HeaterOnOffCounts
+import com.cristiangoncas.greenhousemonitor.data.local.model.LogEntry
 import kotlinx.coroutines.flow.Flow
 
 @Dao

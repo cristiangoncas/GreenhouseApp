@@ -2,46 +2,62 @@ package com.cristiangoncas.greenhousemonitor.ui.screen.heartbeat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cristiangoncas.greenhousemonitor.domain.data.repository.GreenhouseRepository
-import com.cristiangoncas.greenhousemonitor.domain.entity.HeartBeat
+import com.cristiangoncas.greenhousemonitor.data.local.model.HeartBeat
+import com.cristiangoncas.greenhousemonitor.data.repository.HeartbeatRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HeartbeatViewModel(private val repository: GreenhouseRepository) : ViewModel() {
+class HeartbeatViewModel(private val heartbeatRepository: HeartbeatRepository) : ViewModel() {
 
-    private var _state = MutableStateFlow(UiState())
-    val state = _state.asStateFlow()
-
-    fun onUiReady() {
-        viewModelScope.launch {
-            val heartBeat = repository.nextHeartBeat()
-            _state.value =
-                UiState(
-                    heartBeat = heartBeat,
-                    loading = false
-                )
+    private val uiActions = MutableSharedFlow<(UiState) -> UiState>()
+    val state: StateFlow<UiState> = merge(
+        heartbeatRepository.nextHeartBeat()
+            .map { heartBeat ->
+                { currentState ->
+                    currentState.copy(
+                        heartBeat = heartBeat,
+                        loading = false
+                    )
+                }
+            },
+        uiActions
+    )
+        .scan(UiState(loading = true)) { currentState, reducer ->
+            reducer(currentState)
         }
-    }
+        .stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+            initialValue = UiState(loading = true)
+        )
 
     fun setMaxTemp(maxTemp: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val intMaxTemp = maxTemp.toIntOrNull() ?: 0
                 if (intMaxTemp in 15..25) {
-                    repository.setMaxTemp(intMaxTemp)
-                    _state.value = _state.value
-                        .copy(errors = _state.value.errors - "maxTemp")
-                        .copy(heartBeat = _state.value.heartBeat.copy(maxTemp = intMaxTemp.toString()))
+                    heartbeatRepository.setMaxTemp(intMaxTemp)
+                    uiActions.emit { currentState ->
+                        currentState.copy(
+                            errors = currentState.errors - "maxTemp",
+                            heartBeat = currentState.heartBeat.copy(maxTemp = intMaxTemp.toString())
+                        )
+                    }
                 } else {
-                    _state.value =
-                        UiState(
+                    uiActions.emit { currentState ->
+                        currentState.copy(
                             heartBeat = state.value.heartBeat,
                             loading = false,
                             errors = mapOf("maxTemp" to "Temperature out of range, must be between 15 and 25")
                         )
+                    }
                 }
             }
         }
@@ -52,17 +68,21 @@ class HeartbeatViewModel(private val repository: GreenhouseRepository) : ViewMod
             withContext(Dispatchers.IO) {
                 val intMinTemp = minTemp.toIntOrNull() ?: 0
                 if (intMinTemp in 12..18) {
-                    repository.setMinTemp(intMinTemp)
-                    _state.value = _state.value
-                        .copy(errors = _state.value.errors - "minTemp")
-                        .copy(heartBeat = _state.value.heartBeat.copy(minTemp = intMinTemp.toString()))
+                    heartbeatRepository.setMinTemp(intMinTemp)
+                    uiActions.emit { currentState ->
+                        currentState.copy(
+                            errors = currentState.errors - "minTemp",
+                            heartBeat = currentState.heartBeat.copy(minTemp = intMinTemp.toString())
+                        )
+                    }
                 } else {
-                    _state.value =
-                        UiState(
+                    uiActions.emit { currentState ->
+                        currentState.copy(
                             heartBeat = state.value.heartBeat,
                             loading = false,
                             errors = mapOf("minTemp" to "Temperature out of range, must be between 12 and 18")
                         )
+                    }
                 }
             }
         }
@@ -73,17 +93,21 @@ class HeartbeatViewModel(private val repository: GreenhouseRepository) : ViewMod
             withContext(Dispatchers.IO) {
                 val intMorningTime = morningTime.toIntOrNull() ?: 0
                 if (intMorningTime in 5..9) {
-                    repository.setMorningTime(intMorningTime)
-                    _state.value = _state.value
-                        .copy(errors = _state.value.errors - "morningTime")
-                        .copy(heartBeat = _state.value.heartBeat.copy(morningTime = intMorningTime.toString()))
+                    heartbeatRepository.setMorningTime(intMorningTime)
+                    uiActions.emit { currentState ->
+                        currentState.copy(
+                            errors = currentState.errors - "morningTime",
+                            heartBeat = currentState.heartBeat.copy(morningTime = intMorningTime.toString())
+                        )
+                    }
                 } else {
-                    _state.value =
-                        UiState(
+                    uiActions.emit { currentState ->
+                        currentState.copy(
                             heartBeat = state.value.heartBeat,
                             loading = false,
                             errors = mapOf("morningTime" to "Time out of range, must be between 5 and 9")
                         )
+                    }
                 }
             }
         }
@@ -94,17 +118,21 @@ class HeartbeatViewModel(private val repository: GreenhouseRepository) : ViewMod
             withContext(Dispatchers.IO) {
                 val intNightTime = nightTime.toIntOrNull() ?: 0
                 if (intNightTime in 4..48) {
-                    repository.setNightTime(intNightTime)
-                    _state.value = _state.value
-                        .copy(errors = _state.value.errors - "nightTime")
-                        .copy(heartBeat = _state.value.heartBeat.copy(nightTime = intNightTime.toString()))
+                    heartbeatRepository.setNightTime(intNightTime)
+                    uiActions.emit { currentState ->
+                        currentState.copy(
+                            errors = currentState.errors - "nightTime",
+                            heartBeat = currentState.heartBeat.copy(nightTime = intNightTime.toString())
+                        )
+                    }
                 } else {
-                    _state.value =
-                        UiState(
+                    uiActions.emit { currentState ->
+                        currentState.copy(
                             heartBeat = state.value.heartBeat,
                             loading = false,
                             errors = mapOf("nightTime" to "Time out of range, must be between 18 and 21")
                         )
+                    }
                 }
             }
         }
@@ -115,17 +143,21 @@ class HeartbeatViewModel(private val repository: GreenhouseRepository) : ViewMod
             withContext(Dispatchers.IO) {
                 val intNightTempDifference = nightTempDifference.toIntOrNull() ?: 0
                 if (intNightTempDifference in 1..5) {
-                    repository.setNightTempDifference(intNightTempDifference)
-                    _state.value = _state.value
-                        .copy(errors = _state.value.errors - "nightTempDifference")
-                        .copy(heartBeat = _state.value.heartBeat.copy(nightTempDifference = intNightTempDifference.toString()))
+                    heartbeatRepository.setNightTempDifference(intNightTempDifference)
+                    uiActions.emit { currentState ->
+                        currentState.copy(
+                            errors = currentState.errors - "nightTempDifference",
+                            heartBeat = currentState.heartBeat.copy(nightTempDifference = intNightTempDifference.toString())
+                        )
+                    }
                 } else {
-                    _state.value =
-                        UiState(
+                    uiActions.emit { currentState ->
+                        currentState.copy(
                             heartBeat = state.value.heartBeat,
                             loading = false,
                             errors = mapOf("nightTempDifference" to "Temperature out of range, must be between 1 and 5")
                         )
+                    }
                 }
             }
         }
@@ -135,17 +167,21 @@ class HeartbeatViewModel(private val repository: GreenhouseRepository) : ViewMod
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    repository.setHealthCheck()
-                    _state.value = _state.value
-                        .copy(errors = _state.value.errors - "setHealthCheck")
-                        .copy(heartBeat = HeartBeat())
+                    heartbeatRepository.setHealthCheck()
+                    uiActions.emit { currentState ->
+                        currentState.copy(
+                            errors = currentState.errors - "setHealthCheck",
+                            heartBeat = HeartBeat()
+                        )
+                    }
                 } catch (e: Exception) {
-                    _state.value =
-                        UiState(
+                    uiActions.emit { currentState ->
+                        currentState.copy(
                             heartBeat = state.value.heartBeat,
                             loading = false,
                             errors = mapOf("setHealthCheck" to "Something went wrong: ${e.message}")
                         )
+                    }
                 }
             }
         }
@@ -155,17 +191,21 @@ class HeartbeatViewModel(private val repository: GreenhouseRepository) : ViewMod
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    repository.resetDefaults()
-                    _state.value = _state.value
-                        .copy(errors = _state.value.errors - "resetDefaults")
-                        .copy(heartBeat = HeartBeat())
+                    heartbeatRepository.resetDefaults()
+                    uiActions.emit { currentState ->
+                        currentState.copy(
+                            errors = currentState.errors - "resetDefaults",
+                            heartBeat = HeartBeat()
+                        )
+                    }
                 } catch (e: Exception) {
-                    _state.value =
-                        UiState(
+                    uiActions.emit { currentState ->
+                        currentState.copy(
                             heartBeat = state.value.heartBeat,
                             loading = false,
                             errors = mapOf("resetDefaults" to "Something went wrong: ${e.message}")
                         )
+                    }
                 }
             }
         }
@@ -176,17 +216,24 @@ class HeartbeatViewModel(private val repository: GreenhouseRepository) : ViewMod
             withContext(Dispatchers.IO) {
                 val intHeartbeatPeriod = heartbeatPeriod.toIntOrNull() ?: 0
                 if (intHeartbeatPeriod in 10..30) {
-                    repository.setHeartbeatPeriod(intHeartbeatPeriod)
-                    _state.value = _state.value
-                        .copy(errors = _state.value.errors - "heartbeatPeriod")
-                        .copy(heartBeat = _state.value.heartBeat.copy(heartbeatPeriod = intHeartbeatPeriod.toString()))
+                    heartbeatRepository.setHeartbeatPeriod(intHeartbeatPeriod)
+                    uiActions.emit { currentState ->
+                        currentState.copy(
+                            errors = currentState.errors - "heartbeatPeriod",
+                            heartBeat = currentState.heartBeat.copy(
+                                heartbeatPeriod =
+                                intHeartbeatPeriod.toString()
+                            )
+                        )
+                    }
                 } else {
-                    _state.value =
-                        UiState(
+                    uiActions.emit { currentState ->
+                        currentState.copy(
                             heartBeat = state.value.heartBeat,
                             loading = false,
                             errors = mapOf("heartbeatPeriod" to "Period out of range, must be between 10 and 30")
                         )
+                    }
                 }
             }
         }
