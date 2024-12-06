@@ -14,7 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.cristiangoncas.greenhousemonitor.domain.entity.HeartBeat
+import com.cristiangoncas.greenhousemonitor.data.local.model.HeartBeat
 import com.cristiangoncas.greenhousemonitor.ui.common.Screen
 import com.cristiangoncas.greenhousemonitor.ui.common.Loading
 
@@ -43,9 +43,6 @@ fun HeartBeatScreen(viewModel: HeartbeatViewModel, innerPadding: PaddingValues) 
                 }
             }
         }
-    }
-    LaunchedEffect(Unit) {
-        viewModel.onUiReady()
     }
 }
 

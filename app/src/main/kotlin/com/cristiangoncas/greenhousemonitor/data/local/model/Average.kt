@@ -1,4 +1,4 @@
-package com.cristiangoncas.greenhousemonitor.domain.entity
+package com.cristiangoncas.greenhousemonitor.data.local.model
 
 data class Average(
     val avgTemp: Float = 0f,

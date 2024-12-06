@@ -15,7 +15,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,11 +22,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cristiangoncas.greenhousemonitor.R
 
 @Composable
 fun ValueItem(
@@ -66,7 +62,8 @@ fun ValueItem(
                 Text(
                     modifier = Modifier
                         .weight(.2f),
-                    text = "($value)")
+                    text = "($value)"
+                )
                 OutlinedTextField(modifier = Modifier
                     .width(65.dp)
                     .height(55.dp),
@@ -79,8 +76,8 @@ fun ValueItem(
                     modifier = Modifier
                         .weight(.2f),
                     enabled = newValue.isNotEmpty(), onClick = {
-                    validateAndSend(newValue)
-                }) {
+                        validateAndSend(newValue)
+                    }) {
                     Icon(imageVector = Icons.Default.Done, contentDescription = "Done")
                 }
             }

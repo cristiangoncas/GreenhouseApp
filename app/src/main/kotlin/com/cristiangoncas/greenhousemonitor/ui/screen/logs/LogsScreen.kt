@@ -15,8 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cristiangoncas.greenhousemonitor.domain.entity.Event
-import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
+import com.cristiangoncas.greenhousemonitor.data.local.model.Event
+import com.cristiangoncas.greenhousemonitor.data.local.model.LogEntry
 import com.cristiangoncas.greenhousemonitor.ui.common.Screen
 import com.cristiangoncas.greenhousemonitor.ui.common.Loading
 

@@ -1,13 +1,11 @@
-package com.cristiangoncas.greenhousemonitor.domain.data.local
+package com.cristiangoncas.greenhousemonitor.data.local.db
 
 import android.content.Context
-import androidx.compose.ui.platform.LocalContext
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.Room.databaseBuilder
 import androidx.room.RoomDatabase
-import com.cristiangoncas.greenhousemonitor.domain.entity.LogEntry
-import com.cristiangoncas.greenhousemonitor.domain.entity.RawLogEntry
+import com.cristiangoncas.greenhousemonitor.data.local.model.LogEntry
+import com.cristiangoncas.greenhousemonitor.data.local.model.RawLogEntry
 
 @Database(entities = [RawLogEntry::class, LogEntry::class], version = 1, exportSchema = false)
 abstract class GreenhouseDB : RoomDatabase() {
@@ -18,6 +16,7 @@ abstract class GreenhouseDB : RoomDatabase() {
 
     companion object {
         private const val DATABASE_NAME = "greenhouse.db"
+
         @Volatile
         var INSTANCE: GreenhouseDB? = null
 
@@ -35,5 +34,4 @@ abstract class GreenhouseDB : RoomDatabase() {
             }
         }
     }
-
 }

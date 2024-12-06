@@ -15,7 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.cristiangoncas.greenhousemonitor.domain.entity.Event
+import com.cristiangoncas.greenhousemonitor.data.local.model.Event
 
 @Composable
 fun LogItem(
