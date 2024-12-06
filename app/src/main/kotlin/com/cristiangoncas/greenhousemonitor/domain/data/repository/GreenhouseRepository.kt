@@ -23,8 +23,6 @@ interface GreenhouseRepository {
 
     val last24hLogs: Flow<List<LogEntry>>
 
-//    suspend fun getLogs24h(): Flow<List<LogEntry>>
-
     suspend fun getAllLogs(): Flow<List<LogEntry>>
 
     suspend fun nextHeartBeat(): HeartBeat
@@ -62,23 +60,6 @@ class GreenhouseRepositoryImpl(private val api: ApiClient, private val db: Green
             }
         }
         .distinctUntilChanged()
-
-//    override suspend fun getLogs24h(): Flow<List<LogEntry>> {
-//        val last24h =  Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli()
-//        CoroutineScope(Dispatchers.IO).launch {
-//            if (db.logEntryDao().availableLogsOlderThan24h(last24h) == 0) {
-//                fetchAndProcessRemoteAllRawLogs()
-//            }
-//        }
-//        val logs = db.logEntryDao().fetchLogEntriesLast24hFromPointInTime(last24h)
-//            .onEach {
-//                if (it.isEmpty()) {
-//                    fetchAndProcessRemoteAllRawLogs()
-//                }
-//            }
-//            .distinctUntilChanged()
-//        return logs
-//    }
 
     override suspend fun getAllLogs(): Flow<List<LogEntry>> {
         TODO("Not yet implemented")

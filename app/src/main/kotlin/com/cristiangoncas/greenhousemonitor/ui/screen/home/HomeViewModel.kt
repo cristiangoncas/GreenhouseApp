@@ -36,68 +36,10 @@ class HomeViewModel(private val repository: GreenhouseRepository) : ViewModel() 
             val last48h = Instant.now().minus(48, ChronoUnit.HOURS)
 
             val averages12 = repository.fetchAveragesByPeriodOfTime(last12h.toEpochMilli())
-//                .collect { averageTempHumid ->
-//                    _state.update { currentState ->
-//                        val averages = mutableListOf<Average>()
-//                        averages.addAll(currentState.averages)
-//                        averages.add(
-//                            Average(
-//                                averageTempHumid.avgTempRead,
-//                                averageTempHumid.avgHumidRead,
-//                                12
-//                            )
-//                        )
-//                        averages.sortBy { it.hours }
-//
-//                        currentState.copy(averages = averages, loading = false)
-//                    }
-//
-//                }
             val averages24 = repository.fetchAveragesByPeriodOfTime(last24h.toEpochMilli())
-//                .collect { averageTempHumid ->
-//                    _state.update { currentState ->
-//                        val averages = mutableListOf<Average>()
-//                        averages.addAll(currentState.averages)
-//                        averages.add(
-//                            Average(
-//                                averageTempHumid.avgTempRead,
-//                                averageTempHumid.avgHumidRead,
-//                                24
-//                            )
-//                        )
-//                        averages.sortBy { it.hours }
-//
-//                        currentState.copy(averages = averages, loading = false)
-//                    }
-//
-//                }
             val averages48 = repository.fetchAveragesByPeriodOfTime(last48h.toEpochMilli())
-//                .collect { averageTempHumid ->
-//                    _state.update { currentState ->
-//                        val averages = mutableListOf<Average>()
-//                        averages.addAll(currentState.averages)
-//                        averages.add(
-//                            Average(
-//                                averageTempHumid.avgTempRead,
-//                                averageTempHumid.avgHumidRead,
-//                                48
-//                            )
-//                        )
-//                        averages.sortBy { it.hours }
-//
-//                        currentState.copy(averages = averages, loading = false)
-//                    }
-//
-//                }
             val events24 = repository.fetchHeaterEventsByPeriodOfTime(last24h.toEpochMilli())
-//                .collect { heaterEvents ->
-//                    _state.update { currentState ->
-
-//                    }
-//
-//                }
-
-            val combinedFlows = combine(
+            combine(
                 averages12,
                 averages24,
                 averages48,
