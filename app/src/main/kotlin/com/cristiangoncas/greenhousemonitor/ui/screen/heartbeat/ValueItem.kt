@@ -69,7 +69,7 @@ fun ValueItem(
                     text = "($value)")
                 OutlinedTextField(modifier = Modifier
                     .width(65.dp)
-                    .height(45.dp),
+                    .height(55.dp),
                     value = newValue,
                     onValueChange = {
                         newValue = it

@@ -48,11 +48,17 @@ class GreenhouseRepositoryImpl(private val api: ApiClient, private val db: Green
     GreenhouseRepository {
 
     override suspend fun getLogs24h(): Flow<List<LogEntry>> {
+        val last24h = Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli()
         CoroutineScope(Dispatchers.IO).launch {
-            fetchRemoteRawLogs24h()
+            if (db.logEntryDao().areLogsEmpty() != 0 || db.logEntryDao()
+                    .availableLogsOlderThan24h(last24h) == 0
+            ) {
+                fetchRemoteAllRawLogs()
+            } else {
+                fetchRemoteRawLogs24h()
+            }
         }
-        val last24h = Instant.now().minus(1, ChronoUnit.DAYS)
-        return db.logEntryDao().fetchLogEntriesLast24hFromPointInTime(last24h.toEpochMilli())
+        return db.logEntryDao().fetchLogEntriesLast24hFromPointInTime(last24h)
     }
 
     override suspend fun getAllLogs(): Flow<List<LogEntry>> {
@@ -107,6 +113,16 @@ class GreenhouseRepositoryImpl(private val api: ApiClient, private val db: Green
 
             val rawLogs = logs.filter { it.id > lastId }
                 .map { RawLogEntry.fromRemoteLogEntry(it) }
+
+            db.rawLogEntryDao().insertRawLogs(rawLogs)
+        }
+        processRawLogs()
+    }
+
+    private suspend fun fetchRemoteAllRawLogs() {
+        val logs = api.getAllLogs()
+        db.runInTransaction {
+            val rawLogs = logs.map { RawLogEntry.fromRemoteLogEntry(it) }
 
             db.rawLogEntryDao().insertRawLogs(rawLogs)
         }

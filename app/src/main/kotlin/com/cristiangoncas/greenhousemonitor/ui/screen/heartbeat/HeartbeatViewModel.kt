@@ -2,27 +2,22 @@ package com.cristiangoncas.greenhousemonitor.ui.screen.heartbeat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cristiangoncas.greenhousemonitor.BuildConfig
-import com.cristiangoncas.greenhousemonitor.domain.client.ApiClient
+import com.cristiangoncas.greenhousemonitor.domain.data.repository.GreenhouseRepository
 import com.cristiangoncas.greenhousemonitor.domain.entity.HeartBeat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HeartbeatViewModel : ViewModel() {
+class HeartbeatViewModel(private val repository: GreenhouseRepository) : ViewModel() {
 
-    private val apiClient = ApiClient(apiUrl = BuildConfig.API_IP)
     private var _state = MutableStateFlow(UiState())
+    val state = _state.asStateFlow()
 
-    val state: StateFlow<UiState>
-        get() = _state.asStateFlow()
-
-    fun uiReady() {
+    fun onUiReady() {
         viewModelScope.launch {
-            val heartBeat = apiClient.nextHeartBeat()
+            val heartBeat = repository.nextHeartBeat()
             _state.value =
                 UiState(
                     heartBeat = heartBeat,
@@ -36,7 +31,7 @@ class HeartbeatViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 val intMaxTemp = maxTemp.toIntOrNull() ?: 0
                 if (intMaxTemp in 15..25) {
-                    apiClient.setMaxTemp(intMaxTemp)
+                    repository.setMaxTemp(intMaxTemp)
                     _state.value = _state.value
                         .copy(errors = _state.value.errors - "maxTemp")
                         .copy(heartBeat = _state.value.heartBeat.copy(maxTemp = intMaxTemp.toString()))
@@ -57,7 +52,7 @@ class HeartbeatViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 val intMinTemp = minTemp.toIntOrNull() ?: 0
                 if (intMinTemp in 12..18) {
-                    apiClient.setMinTemp(intMinTemp)
+                    repository.setMinTemp(intMinTemp)
                     _state.value = _state.value
                         .copy(errors = _state.value.errors - "minTemp")
                         .copy(heartBeat = _state.value.heartBeat.copy(minTemp = intMinTemp.toString()))
@@ -78,7 +73,7 @@ class HeartbeatViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 val intMorningTime = morningTime.toIntOrNull() ?: 0
                 if (intMorningTime in 5..9) {
-                    apiClient.setMorningTime(intMorningTime)
+                    repository.setMorningTime(intMorningTime)
                     _state.value = _state.value
                         .copy(errors = _state.value.errors - "morningTime")
                         .copy(heartBeat = _state.value.heartBeat.copy(morningTime = intMorningTime.toString()))
@@ -99,7 +94,7 @@ class HeartbeatViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 val intNightTime = nightTime.toIntOrNull() ?: 0
                 if (intNightTime in 4..48) {
-                    apiClient.setNightTime(intNightTime)
+                    repository.setNightTime(intNightTime)
                     _state.value = _state.value
                         .copy(errors = _state.value.errors - "nightTime")
                         .copy(heartBeat = _state.value.heartBeat.copy(nightTime = intNightTime.toString()))
@@ -120,7 +115,7 @@ class HeartbeatViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 val intNightTempDifference = nightTempDifference.toIntOrNull() ?: 0
                 if (intNightTempDifference in 1..5) {
-                    apiClient.setNightTempDifference(intNightTempDifference)
+                    repository.setNightTempDifference(intNightTempDifference)
                     _state.value = _state.value
                         .copy(errors = _state.value.errors - "nightTempDifference")
                         .copy(heartBeat = _state.value.heartBeat.copy(nightTempDifference = intNightTempDifference.toString()))
@@ -140,7 +135,7 @@ class HeartbeatViewModel : ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    apiClient.setHealthCheck()
+                    repository.setHealthCheck()
                     _state.value = _state.value
                         .copy(errors = _state.value.errors - "setHealthCheck")
                         .copy(heartBeat = HeartBeat())
@@ -160,7 +155,7 @@ class HeartbeatViewModel : ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    apiClient.resetDefaults()
+                    repository.resetDefaults()
                     _state.value = _state.value
                         .copy(errors = _state.value.errors - "resetDefaults")
                         .copy(heartBeat = HeartBeat())
@@ -181,7 +176,7 @@ class HeartbeatViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 val intHeartbeatPeriod = heartbeatPeriod.toIntOrNull() ?: 0
                 if (intHeartbeatPeriod in 10..30) {
-                    apiClient.setHeartbeatPeriod(intHeartbeatPeriod)
+                    repository.setHeartbeatPeriod(intHeartbeatPeriod)
                     _state.value = _state.value
                         .copy(errors = _state.value.errors - "heartbeatPeriod")
                         .copy(heartBeat = _state.value.heartBeat.copy(heartbeatPeriod = intHeartbeatPeriod.toString()))
