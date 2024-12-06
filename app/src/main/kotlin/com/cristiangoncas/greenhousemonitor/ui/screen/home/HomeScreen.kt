@@ -1,18 +1,13 @@
 package com.cristiangoncas.greenhousemonitor.ui.screen.home
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,10 +20,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cristiangoncas.greenhousemonitor.domain.entity.Averages
-import com.cristiangoncas.greenhousemonitor.ui.screen.Screen
+import com.cristiangoncas.greenhousemonitor.ui.common.Screen
+import com.cristiangoncas.greenhousemonitor.ui.common.Loading
 
 @Composable
 fun HomeScreen(
@@ -72,30 +66,22 @@ fun HomeContent(
                 Modifier
                     .verticalScroll(rememberScrollState())
             ) {
-                AveragesComponent(state)
+                state.averages?.let { averages ->
+                    AveragesComponent(averages.avg12h)
+                    AveragesComponent(averages.avg24h)
+                    AveragesComponent(averages.avg48h)
+                }
+
+                state.events?.let { events ->
+                    EventCountComponent(
+                        events.heaterOn.event,
+                        events.heaterOn.count,
+                        events.heaterOn.hours
+                    )
+                }
             }
         }
     }
-}
-
-@Composable
-fun Loading() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(150.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewLoading() {
-    Loading()
 }
 
 @Composable
@@ -119,41 +105,4 @@ fun AverageDisplayComponent(label: String, value: String, modifier: Modifier = M
             modifier = Modifier.weight(1f)
         )
     }
-}
-
-@Composable
-fun AveragesComponent(state: HomeViewModel.UiState) {
-//    Box(
-//        contentAlignment = Alignment.Center
-//    ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp), // Optional padding for the entire row
-        horizontalArrangement = Arrangement.SpaceAround // Space evenly between the components
-    ) {
-        AverageDisplayComponent(
-            label = "Avg Temperature 6h",
-            value = state.averages.avgTempRead.toString()
-        )
-
-        AverageDisplayComponent(
-            label = "Avg Humidity 6h",
-            value = state.averages.avgHumidRead.toString()
-        )
-    }
-//    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewAverages() {
-    val state = HomeViewModel.UiState(
-        loading = false,
-        averages = Averages(
-            avgTempRead = 22f,
-            avgHumidRead = 78f
-        )
-    )
-    AveragesComponent(state)
 }

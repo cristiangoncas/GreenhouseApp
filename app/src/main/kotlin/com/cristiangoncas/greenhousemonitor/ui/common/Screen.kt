@@ -1,4 +1,4 @@
-package com.cristiangoncas.greenhousemonitor.ui.screen
+package com.cristiangoncas.greenhousemonitor.ui.common
 
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
