@@ -33,11 +33,11 @@ interface LogEntryDao {
     fun fetchAverageTempByPeriodOfTime(period: Long): Flow<AverageTempHumid>
 
     @Query("SELECT " +
-            "SUM(CASE WHEN event = 'heater' AND data = 'On' THEN 1 ELSE 0 END) AS heaterOnCount, " +
-            "SUM(CASE WHEN event = 'heater' AND data = 'Off' THEN 1 ELSE 0 END) AS heaterOffCount " +
+            "SUM(CASE WHEN event = :event AND data = 'On' THEN 1 ELSE 0 END) AS heaterOnCount, " +
+            "SUM(CASE WHEN event = :event AND data = 'Off' THEN 1 ELSE 0 END) AS heaterOffCount " +
             "FROM LogEntry " +
-            "WHERE event = 'heater' AND timestamp >= :period")
-    fun fetchEventsByPeriodOfTime(period: Long): Flow<HeaterOnOffCounts>
+            "WHERE event = :event AND timestamp >= :period")
+    fun fetchEventsByPeriodOfTime(event: String, period: Long): Flow<HeaterOnOffCounts>
 
     // Method to count the amount of logs. Will be used to do a fetch all logs if empty.
     @Query("SELECT COUNT(*) == 0 FROM LogEntry")

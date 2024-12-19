@@ -2,6 +2,7 @@ package com.cristiangoncas.greenhousemonitor.ui.screen.heartbeat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cristiangoncas.greenhousemonitor.data.local.model.CustomResult
 import com.cristiangoncas.greenhousemonitor.data.local.model.HeartBeat
 import com.cristiangoncas.greenhousemonitor.data.repository.HeartbeatRepository
 import kotlinx.coroutines.Dispatchers
@@ -21,8 +22,9 @@ class HeartbeatViewModel(private val heartbeatRepository: HeartbeatRepository) :
         heartbeatRepository.nextHeartBeat()
             .map { heartBeat ->
                 { currentState ->
+                    heartBeat as CustomResult.Success
                     currentState.copy(
-                        heartBeat = heartBeat,
+                        heartBeat = heartBeat.data,
                         loading = false
                     )
                 }
@@ -44,6 +46,7 @@ class HeartbeatViewModel(private val heartbeatRepository: HeartbeatRepository) :
                 val intMaxTemp = maxTemp.toIntOrNull() ?: 0
                 if (intMaxTemp in 15..25) {
                     heartbeatRepository.setMaxTemp(intMaxTemp)
+                    // TODO: All this actions require error handling
                     uiActions.emit { currentState ->
                         currentState.copy(
                             errors = currentState.errors - "maxTemp",

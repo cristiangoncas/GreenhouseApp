@@ -1,44 +1,32 @@
 package com.cristiangoncas.greenhousemonitor.data.repository
 
+import com.cristiangoncas.greenhousemonitor.data.local.LocalDataSource
 import com.cristiangoncas.greenhousemonitor.data.local.model.AverageTempHumid
+import com.cristiangoncas.greenhousemonitor.data.local.model.CustomResult
 import com.cristiangoncas.greenhousemonitor.data.local.model.HeaterOnOffCounts
 import com.cristiangoncas.greenhousemonitor.data.local.model.LogEntry
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.onEach
 
 interface LogsRepository {
 
-    val last24hLogs: Flow<List<LogEntry>>
+    val last24hLogs: Flow<CustomResult<List<LogEntry>>>
 
-    val allLogs: Flow<List<LogEntry>>
+    fun fetchAveragesByPeriodOfTime(period: Long): Flow<CustomResult<AverageTempHumid>>
 
-    fun fetchAveragesByPeriodOfTime(period: Long): Flow<AverageTempHumid>
-
-    fun fetchHeaterEventsByPeriodOfTime(period: Long): Flow<HeaterOnOffCounts>
+    fun fetchHeaterEventsByPeriodOfTime(period: Long): Flow<CustomResult<HeaterOnOffCounts>>
 }
 
 class LogsRepositoryImpl(
-    private val localRepository: LocalRepository
+    private val localDataSource: LocalDataSource
 ) : LogsRepository {
 
-    override val last24hLogs: Flow<List<LogEntry>> = localRepository.last24hLogs.onEach {
-        if (it.isEmpty()) {
-            localRepository.fetchAndProcessRemoteAllRawLogs()
-        }
-    }
-        .distinctUntilChanged()
-    override val allLogs: Flow<List<LogEntry>> = localRepository.allLogs.onEach {
-        if (it.isEmpty()) {
-            localRepository.fetchAndProcessRemoteAllRawLogs()
-        }
-    }.distinctUntilChanged()
+    override val last24hLogs: Flow<CustomResult<List<LogEntry>>> = localDataSource.last24hLogs
 
-    override fun fetchAveragesByPeriodOfTime(period: Long): Flow<AverageTempHumid> {
-        return localRepository.fetchAveragesByPeriodOfTime(period)
+    override fun fetchAveragesByPeriodOfTime(period: Long): Flow<CustomResult<AverageTempHumid>> {
+        return localDataSource.fetchAveragesByPeriodOfTime(period)
     }
 
-    override fun fetchHeaterEventsByPeriodOfTime(period: Long): Flow<HeaterOnOffCounts> {
-        return localRepository.fetchHeaterEventsByPeriodOfTime(period)
+    override fun fetchHeaterEventsByPeriodOfTime(period: Long): Flow<CustomResult<HeaterOnOffCounts>> {
+        return localDataSource.fetchHeaterEventsByPeriodOfTime(period)
     }
 }
