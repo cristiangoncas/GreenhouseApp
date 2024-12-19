@@ -1,16 +1,22 @@
-package com.cristiangoncas.greenhousemonitor.data.repository
+package com.cristiangoncas.greenhousemonitor.data.remote
 
 import com.cristiangoncas.greenhousemonitor.data.local.model.CustomResult
+import com.cristiangoncas.greenhousemonitor.data.remote.client.ApiImpl
 import com.cristiangoncas.greenhousemonitor.data.local.model.HeartBeat
-import com.cristiangoncas.greenhousemonitor.data.remote.RemoteDataSource
+import com.cristiangoncas.greenhousemonitor.data.remote.model.RemoteLogEntry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-interface HeartbeatRepository {
+interface RemoteDataSource {
 
-    fun nextHeartBeat(): Flow<CustomResult<HeartBeat>>
+    suspend fun getLastLog(): CustomResult<RemoteLogEntry>
 
-    // TODO: All set actions need to return a Flow<Result> to catch errors and send them to the UI
+    suspend fun getLogs24h(): CustomResult<List<RemoteLogEntry>>
+
+    suspend fun getAllLogs(): CustomResult<List<RemoteLogEntry>>
+
+    suspend fun nextHeartBeat(): CustomResult<HeartBeat>
+
     suspend fun setMaxTemp(maxTemp: Int): CustomResult<Unit>
 
     suspend fun setMinTemp(minTemp: Int): CustomResult<Unit>
@@ -26,44 +32,56 @@ interface HeartbeatRepository {
     suspend fun resetDefaults(): CustomResult<Unit>
 
     suspend fun setHeartbeatPeriod(heartbeatPeriod: Int): CustomResult<Unit>
+
 }
 
-class HeartbeatRepositoryImpl(private val remoteDataSource: RemoteDataSource) :
-    HeartbeatRepository {
+class RemoteDataSourceImpl(private val api: ApiImpl) : RemoteDataSource {
 
-    override fun nextHeartBeat(): Flow<CustomResult<HeartBeat>> {
-        return flow { emit(remoteDataSource.nextHeartBeat()) }
+    override suspend fun getLastLog(): CustomResult<RemoteLogEntry> {
+        return api.getLastLog()
+    }
+
+    override suspend fun getLogs24h(): CustomResult<List<RemoteLogEntry>> {
+        return api.getLogs24h()
+    }
+
+    override suspend fun getAllLogs(): CustomResult<List<RemoteLogEntry>> {
+        return api.getAllLogs()
+    }
+
+    override suspend fun nextHeartBeat(): CustomResult<HeartBeat> {
+        return api.nextHeartBeat()
     }
 
     override suspend fun setMaxTemp(maxTemp: Int): CustomResult<Unit> {
-        return remoteDataSource.setMaxTemp(maxTemp)
+        return api.setMaxTemp(maxTemp)
     }
 
     override suspend fun setMinTemp(minTemp: Int): CustomResult<Unit> {
-        return remoteDataSource.setMinTemp(minTemp)
+        return api.setMinTemp(minTemp)
     }
 
     override suspend fun setMorningTime(morningTime: Int): CustomResult<Unit> {
-        return remoteDataSource.setMorningTime(morningTime)
+        return api.setMorningTime(morningTime)
     }
 
     override suspend fun setNightTime(nightTime: Int): CustomResult<Unit> {
-        return remoteDataSource.setNightTime(nightTime)
+        return api.setNightTime(nightTime)
     }
 
     override suspend fun setNightTempDifference(tempDifference: Int): CustomResult<Unit> {
-        return remoteDataSource.setNightTempDifference(tempDifference)
+        return api.setNightTempDifference(tempDifference)
     }
 
     override suspend fun setHealthCheck(): CustomResult<Unit> {
-        return remoteDataSource.setHealthCheck()
+        return api.setHealthCheck()
     }
 
     override suspend fun resetDefaults(): CustomResult<Unit> {
-        return remoteDataSource.resetDefaults()
+        return api.resetDefaults()
     }
 
     override suspend fun setHeartbeatPeriod(heartbeatPeriod: Int): CustomResult<Unit> {
-        return remoteDataSource.setHeartbeatPeriod(heartbeatPeriod)
+        return api.setHeartbeatPeriod(heartbeatPeriod)
     }
 }

@@ -1,5 +1,6 @@
 package com.cristiangoncas.greenhousemonitor.ui.screen.logs
 
+import android.net.ConnectivityManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,20 +18,33 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cristiangoncas.greenhousemonitor.data.local.model.Event
 import com.cristiangoncas.greenhousemonitor.data.local.model.LogEntry
+import com.cristiangoncas.greenhousemonitor.ui.common.ConnectivityState
 import com.cristiangoncas.greenhousemonitor.ui.common.Screen
 import com.cristiangoncas.greenhousemonitor.ui.common.Loading
+import com.cristiangoncas.greenhousemonitor.ui.common.rememberConnectivityState
 
 @Composable
 fun LogsScreen(
-    viewModel: LogsViewModel, innerPadding: PaddingValues
+    viewModel: LogsViewModel,
+    innerPadding: PaddingValues,
+    connectivityState: ConnectivityState
 ) {
+
+    val isConnected = connectivityState.isConnected.collectAsState(initial = false)
+    if (!isConnected.value) {
+        // TODO: Snack bar to inform there is no network
+    }
     val state by viewModel.state.collectAsState()
     val onRefresh = { viewModel.refresh() }
     Screen {
         LogsContent(innerPadding, state, onRefresh)
-    }
-    LaunchedEffect(Unit) {
-        viewModel.onUiReady()
+        if (state.error != null) {
+            // TODO: Snack bar
+            println("Error: ${state.error}")
+        }
+        LaunchedEffect(Unit) {
+            viewModel.onUiReady()
+        }
     }
 }
 
