@@ -4,7 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cristiangoncas.greenhousemonitor.data.local.model.CustomResult
 import com.cristiangoncas.greenhousemonitor.data.local.model.HeartBeat
-import com.cristiangoncas.greenhousemonitor.data.repository.HeartbeatRepository
+import com.cristiangoncas.greenhousemonitor.ui.usecases.NextHeartbeatUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.RequestHealthCheckUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.ResetDefaultParamsUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.SetHeartbeatPeriodUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.SetMaxTempUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.SetMinTempUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.SetMorningTimeUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.SetNightTempDifferenceUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.SetNightTimeUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,11 +23,21 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HeartbeatViewModel(private val heartbeatRepository: HeartbeatRepository) : ViewModel() {
+class HeartbeatViewModel(
+    nextHeartbeatUseCase: NextHeartbeatUseCase,
+    private val setMaxTempUseCase: SetMaxTempUseCase,
+    private val setMinTempUseCase: SetMinTempUseCase,
+    private val setMorningTimeUseCase: SetMorningTimeUseCase,
+    private val setNightTempUseCase: SetNightTimeUseCase,
+    private val setNightTempDifferenceUseCase: SetNightTempDifferenceUseCase,
+    private val requestHealthCheckUseCase: RequestHealthCheckUseCase,
+    private val resetDefaultParamsUseCase: ResetDefaultParamsUseCase,
+    private val setHeartbeatPeriodUseCase: SetHeartbeatPeriodUseCase
+) : ViewModel() {
 
     private val uiActions = MutableSharedFlow<(UiState) -> UiState>()
     val state: StateFlow<UiState> = merge(
-        heartbeatRepository.nextHeartBeat()
+        nextHeartbeatUseCase()
             .map { heartBeat ->
                 { currentState ->
                     heartBeat as CustomResult.Success
@@ -45,13 +63,35 @@ class HeartbeatViewModel(private val heartbeatRepository: HeartbeatRepository) :
             withContext(Dispatchers.IO) {
                 val intMaxTemp = maxTemp.toIntOrNull() ?: 0
                 if (intMaxTemp in 15..25) {
-                    heartbeatRepository.setMaxTemp(intMaxTemp)
-                    // TODO: All this actions require error handling
-                    uiActions.emit { currentState ->
-                        currentState.copy(
-                            errors = currentState.errors - "maxTemp",
-                            heartBeat = currentState.heartBeat.copy(maxTemp = intMaxTemp.toString())
-                        )
+                    setMaxTempUseCase(intMaxTemp).collect { result ->
+                        when (result) {
+                            is CustomResult.Success -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        errors = currentState.errors - "maxTemp",
+                                        heartBeat = currentState.heartBeat.copy(maxTemp = intMaxTemp.toString())
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Error -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = false,
+                                        errors = mapOf("maxTemp" to "Something went wrong: ${result.message}")
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Loading -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = true
+                                    )
+                                }
+                            }
+
+                        }
                     }
                 } else {
                     uiActions.emit { currentState ->
@@ -71,12 +111,35 @@ class HeartbeatViewModel(private val heartbeatRepository: HeartbeatRepository) :
             withContext(Dispatchers.IO) {
                 val intMinTemp = minTemp.toIntOrNull() ?: 0
                 if (intMinTemp in 12..18) {
-                    heartbeatRepository.setMinTemp(intMinTemp)
-                    uiActions.emit { currentState ->
-                        currentState.copy(
-                            errors = currentState.errors - "minTemp",
-                            heartBeat = currentState.heartBeat.copy(minTemp = intMinTemp.toString())
-                        )
+                    setMinTempUseCase(intMinTemp).collect { result ->
+                        when (result) {
+                            is CustomResult.Success -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        errors = currentState.errors - "minTemp",
+                                        heartBeat = currentState.heartBeat.copy(minTemp = intMinTemp.toString())
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Error -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = false,
+                                        errors = mapOf("minTemp" to "Something went wrong: ${result.message}")
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Loading -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = true
+                                    )
+                                }
+                            }
+
+                        }
                     }
                 } else {
                     uiActions.emit { currentState ->
@@ -96,12 +159,35 @@ class HeartbeatViewModel(private val heartbeatRepository: HeartbeatRepository) :
             withContext(Dispatchers.IO) {
                 val intMorningTime = morningTime.toIntOrNull() ?: 0
                 if (intMorningTime in 5..9) {
-                    heartbeatRepository.setMorningTime(intMorningTime)
-                    uiActions.emit { currentState ->
-                        currentState.copy(
-                            errors = currentState.errors - "morningTime",
-                            heartBeat = currentState.heartBeat.copy(morningTime = intMorningTime.toString())
-                        )
+                    setMorningTimeUseCase(intMorningTime).collect { result ->
+                        when (result) {
+                            is CustomResult.Success -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        errors = currentState.errors - "morningTime",
+                                        heartBeat = currentState.heartBeat.copy(morningTime = intMorningTime.toString())
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Error -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = false,
+                                        errors = mapOf("morningTime" to "Something went wrong: ${result.message}")
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Loading -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = true
+                                    )
+                                }
+                            }
+
+                        }
                     }
                 } else {
                     uiActions.emit { currentState ->
@@ -121,12 +207,35 @@ class HeartbeatViewModel(private val heartbeatRepository: HeartbeatRepository) :
             withContext(Dispatchers.IO) {
                 val intNightTime = nightTime.toIntOrNull() ?: 0
                 if (intNightTime in 4..48) {
-                    heartbeatRepository.setNightTime(intNightTime)
-                    uiActions.emit { currentState ->
-                        currentState.copy(
-                            errors = currentState.errors - "nightTime",
-                            heartBeat = currentState.heartBeat.copy(nightTime = intNightTime.toString())
-                        )
+                    setNightTempUseCase(intNightTime).collect { result ->
+                        when (result) {
+                            is CustomResult.Success -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        errors = currentState.errors - "nightTime",
+                                        heartBeat = currentState.heartBeat.copy(nightTime = intNightTime.toString())
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Error -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = false,
+                                        errors = mapOf("nightTime" to "Something went wrong: ${result.message}")
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Loading -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = true
+                                    )
+                                }
+                            }
+
+                        }
                     }
                 } else {
                     uiActions.emit { currentState ->
@@ -146,12 +255,35 @@ class HeartbeatViewModel(private val heartbeatRepository: HeartbeatRepository) :
             withContext(Dispatchers.IO) {
                 val intNightTempDifference = nightTempDifference.toIntOrNull() ?: 0
                 if (intNightTempDifference in 1..5) {
-                    heartbeatRepository.setNightTempDifference(intNightTempDifference)
-                    uiActions.emit { currentState ->
-                        currentState.copy(
-                            errors = currentState.errors - "nightTempDifference",
-                            heartBeat = currentState.heartBeat.copy(nightTempDifference = intNightTempDifference.toString())
-                        )
+                    setNightTempDifferenceUseCase(intNightTempDifference).collect { result ->
+                        when (result) {
+                            is CustomResult.Success -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        errors = currentState.errors - "nightTempDifference",
+                                        heartBeat = currentState.heartBeat.copy(nightTempDifference = intNightTempDifference.toString())
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Error -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = false,
+                                        errors = mapOf("nightTempDifference" to "Something went wrong: ${result.message}")
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Loading -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = true
+                                    )
+                                }
+                            }
+
+                        }
                     }
                 } else {
                     uiActions.emit { currentState ->
@@ -170,12 +302,35 @@ class HeartbeatViewModel(private val heartbeatRepository: HeartbeatRepository) :
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    heartbeatRepository.setHealthCheck()
-                    uiActions.emit { currentState ->
-                        currentState.copy(
-                            errors = currentState.errors - "setHealthCheck",
-                            heartBeat = HeartBeat()
-                        )
+                    requestHealthCheckUseCase().collect { result ->
+                        when (result) {
+                            is CustomResult.Success -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        errors = currentState.errors - "setHealthCheck",
+                                        heartBeat = HeartBeat()
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Error -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = false,
+                                        errors = mapOf("requestHealthCheck" to "Something went wrong: ${result.message}")
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Loading -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = true
+                                    )
+                                }
+                            }
+
+                        }
                     }
                 } catch (e: Exception) {
                     uiActions.emit { currentState ->
@@ -194,12 +349,35 @@ class HeartbeatViewModel(private val heartbeatRepository: HeartbeatRepository) :
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    heartbeatRepository.resetDefaults()
-                    uiActions.emit { currentState ->
-                        currentState.copy(
-                            errors = currentState.errors - "resetDefaults",
-                            heartBeat = HeartBeat()
-                        )
+                    resetDefaultParamsUseCase().collect { result ->
+                        when (result) {
+                            is CustomResult.Success -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        errors = currentState.errors - "resetDefaults",
+                                        heartBeat = HeartBeat()
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Error -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = false,
+                                        errors = mapOf("resetDefaults" to "Something went wrong: ${result.message}")
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Loading -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = true
+                                    )
+                                }
+                            }
+
+                        }
                     }
                 } catch (e: Exception) {
                     uiActions.emit { currentState ->
@@ -219,15 +397,35 @@ class HeartbeatViewModel(private val heartbeatRepository: HeartbeatRepository) :
             withContext(Dispatchers.IO) {
                 val intHeartbeatPeriod = heartbeatPeriod.toIntOrNull() ?: 0
                 if (intHeartbeatPeriod in 10..30) {
-                    heartbeatRepository.setHeartbeatPeriod(intHeartbeatPeriod)
-                    uiActions.emit { currentState ->
-                        currentState.copy(
-                            errors = currentState.errors - "heartbeatPeriod",
-                            heartBeat = currentState.heartBeat.copy(
-                                heartbeatPeriod =
-                                intHeartbeatPeriod.toString()
-                            )
-                        )
+                    setHeartbeatPeriodUseCase(intHeartbeatPeriod).collect { result ->
+                        when (result) {
+                            is CustomResult.Success -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        errors = currentState.errors - "heartbeatPeriod",
+                                        heartBeat = currentState.heartBeat.copy(heartbeatPeriod = intHeartbeatPeriod.toString())
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Error -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = false,
+                                        errors = mapOf("heartbeatPeriod" to "Something went wrong: ${result.message}")
+                                    )
+                                }
+                            }
+
+                            is CustomResult.Loading -> {
+                                uiActions.emit { currentState ->
+                                    currentState.copy(
+                                        loading = true
+                                    )
+                                }
+                            }
+
+                        }
                     }
                 } else {
                     uiActions.emit { currentState ->

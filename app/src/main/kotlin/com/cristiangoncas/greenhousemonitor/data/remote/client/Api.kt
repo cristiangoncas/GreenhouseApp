@@ -100,6 +100,7 @@ class ApiImpl(
     }
 
     override suspend fun setMaxTemp(maxTemp: Int): CustomResult<Unit> {
+        println("Setting max temp to $maxTemp")
         val response = client.post {
             url("$apiUrl/setMaxTemp")
             contentType(ContentType.Application.Json)

@@ -3,67 +3,68 @@ package com.cristiangoncas.greenhousemonitor.data.repository
 import com.cristiangoncas.greenhousemonitor.data.local.model.CustomResult
 import com.cristiangoncas.greenhousemonitor.data.local.model.HeartBeat
 import com.cristiangoncas.greenhousemonitor.data.remote.RemoteDataSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 interface HeartbeatRepository {
 
     fun nextHeartBeat(): Flow<CustomResult<HeartBeat>>
 
-    // TODO: All set actions need to return a Flow<Result> to catch errors and send them to the UI
-    suspend fun setMaxTemp(maxTemp: Int): CustomResult<Unit>
+    fun setMaxTemp(maxTemp: Int): Flow<CustomResult<Unit>>
 
-    suspend fun setMinTemp(minTemp: Int): CustomResult<Unit>
+    fun setMinTemp(minTemp: Int): Flow<CustomResult<Unit>>
 
-    suspend fun setMorningTime(morningTime: Int): CustomResult<Unit>
+    fun setMorningTime(morningTime: Int): Flow<CustomResult<Unit>>
 
-    suspend fun setNightTime(nightTime: Int): CustomResult<Unit>
+    fun setNightTime(nightTime: Int): Flow<CustomResult<Unit>>
 
-    suspend fun setNightTempDifference(tempDifference: Int): CustomResult<Unit>
+    fun setNightTempDifference(tempDifference: Int): Flow<CustomResult<Unit>>
 
-    suspend fun setHealthCheck(): CustomResult<Unit>
+    fun setHealthCheck(): Flow<CustomResult<Unit>>
 
-    suspend fun resetDefaults(): CustomResult<Unit>
+    fun resetDefaults(): Flow<CustomResult<Unit>>
 
-    suspend fun setHeartbeatPeriod(heartbeatPeriod: Int): CustomResult<Unit>
+    fun setHeartbeatPeriod(heartbeatPeriod: Int): Flow<CustomResult<Unit>>
 }
 
 class HeartbeatRepositoryImpl(private val remoteDataSource: RemoteDataSource) :
     HeartbeatRepository {
 
     override fun nextHeartBeat(): Flow<CustomResult<HeartBeat>> {
-        return flow { emit(remoteDataSource.nextHeartBeat()) }
+        return flow { emit(remoteDataSource.nextHeartBeat()) }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun setMaxTemp(maxTemp: Int): CustomResult<Unit> {
-        return remoteDataSource.setMaxTemp(maxTemp)
+    override fun setMaxTemp(maxTemp: Int): Flow<CustomResult<Unit>> {
+        return flow { emit(remoteDataSource.setMaxTemp(maxTemp)) }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun setMinTemp(minTemp: Int): CustomResult<Unit> {
-        return remoteDataSource.setMinTemp(minTemp)
+    override fun setMinTemp(minTemp: Int): Flow<CustomResult<Unit>> {
+        return flow { emit(remoteDataSource.setMinTemp(minTemp)) }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun setMorningTime(morningTime: Int): CustomResult<Unit> {
-        return remoteDataSource.setMorningTime(morningTime)
+    override fun setMorningTime(morningTime: Int): Flow<CustomResult<Unit>> {
+        return flow { emit(remoteDataSource.setMorningTime(morningTime)) }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun setNightTime(nightTime: Int): CustomResult<Unit> {
-        return remoteDataSource.setNightTime(nightTime)
+    override fun setNightTime(nightTime: Int): Flow<CustomResult<Unit>> {
+        return flow { emit(remoteDataSource.setNightTime(nightTime)) }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun setNightTempDifference(tempDifference: Int): CustomResult<Unit> {
-        return remoteDataSource.setNightTempDifference(tempDifference)
+    override fun setNightTempDifference(tempDifference: Int): Flow<CustomResult<Unit>> {
+        return flow { emit(remoteDataSource.setNightTempDifference(tempDifference)) }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun setHealthCheck(): CustomResult<Unit> {
-        return remoteDataSource.setHealthCheck()
+    override fun setHealthCheck(): Flow<CustomResult<Unit>> {
+        return flow { emit(remoteDataSource.setHealthCheck()) }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun resetDefaults(): CustomResult<Unit> {
-        return remoteDataSource.resetDefaults()
+    override fun resetDefaults(): Flow<CustomResult<Unit>> {
+        return flow { emit(remoteDataSource.resetDefaults()) }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun setHeartbeatPeriod(heartbeatPeriod: Int): CustomResult<Unit> {
-        return remoteDataSource.setHeartbeatPeriod(heartbeatPeriod)
+    override fun setHeartbeatPeriod(heartbeatPeriod: Int): Flow<CustomResult<Unit>> {
+        return flow { emit(remoteDataSource.setHeartbeatPeriod(heartbeatPeriod)) }.flowOn(Dispatchers.IO)
     }
 }

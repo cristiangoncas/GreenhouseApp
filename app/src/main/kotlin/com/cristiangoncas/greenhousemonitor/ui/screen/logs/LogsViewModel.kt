@@ -4,23 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cristiangoncas.greenhousemonitor.data.local.model.CustomResult
 import com.cristiangoncas.greenhousemonitor.data.local.model.LogEntry
-import com.cristiangoncas.greenhousemonitor.data.repository.LogsRepository
+import com.cristiangoncas.greenhousemonitor.ui.usecases.FetchLogs24hUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LogsViewModel(private val logsRepository: LogsRepository) : ViewModel() {
+class LogsViewModel(private val fetchLogs24HUseCase: FetchLogs24hUseCase) : ViewModel() {
 
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 0)
 
@@ -28,7 +24,7 @@ class LogsViewModel(private val logsRepository: LogsRepository) : ViewModel() {
     val state: StateFlow<UiState> = refreshTrigger
         .onStart { emit(Unit) }
         .flatMapLatest {
-            logsRepository.last24hLogs
+            fetchLogs24HUseCase()
                 .map {
                     when (it) {
                         is CustomResult.Success -> UiState(loading = false, logs = it.data)
