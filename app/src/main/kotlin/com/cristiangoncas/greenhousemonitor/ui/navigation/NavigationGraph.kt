@@ -27,6 +27,22 @@ import com.cristiangoncas.greenhousemonitor.ui.screen.home.HomeScreen
 import com.cristiangoncas.greenhousemonitor.ui.screen.home.HomeViewModel
 import com.cristiangoncas.greenhousemonitor.ui.screen.logs.LogsScreen
 import com.cristiangoncas.greenhousemonitor.ui.screen.logs.LogsViewModel
+import com.cristiangoncas.greenhousemonitor.ui.usecases.Average12hUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.Average24hUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.Average48hUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.FetchLogs24hUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.HeaterEvents24hUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.NextHeartbeatUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.RequestHealthCheckUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.ResetDefaultParamsUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.SetHeartbeatPeriodUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.SetMaxTempUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.SetMinTempUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.SetMorningTimeUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.SetNightTempDifferenceUseCase
+import com.cristiangoncas.greenhousemonitor.ui.usecases.SetNightTimeUseCase
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
 
 @Composable
 fun NavigationGraph(navHostController: NavHostController, innerPadding: PaddingValues) {
@@ -36,16 +52,36 @@ fun NavigationGraph(navHostController: NavHostController, innerPadding: PaddingV
     val connectivityState = rememberConnectivityState(connectivityManager)
 
     // TODO: This will change once I introduce dependency injection
+    val httpClient = HttpClient(Android)
     val remoteDataSource: RemoteDataSource = RemoteDataSourceImpl(
-        api = ApiImpl(apiUrl = BuildConfig.API_IP)
+        api = ApiImpl(client = httpClient, apiUrl = BuildConfig.API_IP)
     )
     val logRepository: LocalDataSource = LocalDataSourceImpl(
+        db = GreenhouseDB.getInstance(context)
+    )
+    val logsRepository: LogsRepository = LogsRepositoryImpl(
         remoteDataSource = remoteDataSource,
-        db = GreenhouseDB.getInstance(context),
+        localDataSource = logRepository,
         connectivityState = connectivityState
     )
-    val logsRepository: LogsRepository = LogsRepositoryImpl(logRepository)
+    val logs24hUseCase = FetchLogs24hUseCase(logsRepository)
     val heartbeatRepository: HeartbeatRepository = HeartbeatRepositoryImpl(remoteDataSource)
+
+    val average12hUseCase = Average12hUseCase(logsRepository)
+    val average24hUseCase = Average24hUseCase(logsRepository)
+    val average48hUseCase = Average48hUseCase(logsRepository)
+    val heaterEvents24hUseCase = HeaterEvents24hUseCase(logsRepository)
+
+    val nextHeartbeatUseCase = NextHeartbeatUseCase(heartbeatRepository)
+    val setMaxTempUseCase = SetMaxTempUseCase(heartbeatRepository)
+    val setMinTempUseCase = SetMinTempUseCase(heartbeatRepository)
+    val setMorningTimeUseCase = SetMorningTimeUseCase(heartbeatRepository)
+    val setNightTempUseCase = SetNightTimeUseCase(heartbeatRepository)
+    val setNightTempDifferenceUseCase = SetNightTempDifferenceUseCase(heartbeatRepository)
+    val requestHealthCheckUseCase = RequestHealthCheckUseCase(heartbeatRepository)
+    val resetDefaultParamsUseCase = ResetDefaultParamsUseCase(heartbeatRepository)
+    val setHeartbeatPeriodUseCase = SetHeartbeatPeriodUseCase(heartbeatRepository)
+
 
     NavHost(
         navController = navHostController,
@@ -54,7 +90,12 @@ fun NavigationGraph(navHostController: NavHostController, innerPadding: PaddingV
         composable(route = BottomNavItem.Home.route) {
             HomeScreen(
                 viewModel = viewModel {
-                    HomeViewModel(logsRepository)
+                    HomeViewModel(
+                        average12hUseCase,
+                        average24hUseCase,
+                        average48hUseCase,
+                        heaterEvents24hUseCase
+                    )
                 },
                 innerPadding = innerPadding
             )
@@ -62,7 +103,7 @@ fun NavigationGraph(navHostController: NavHostController, innerPadding: PaddingV
         composable(route = BottomNavItem.Logs.route) {
             LogsScreen(
                 viewModel = viewModel {
-                    LogsViewModel(logsRepository)
+                    LogsViewModel(logs24hUseCase)
                 },
                 innerPadding = innerPadding,
                 connectivityState = connectivityState
@@ -71,7 +112,17 @@ fun NavigationGraph(navHostController: NavHostController, innerPadding: PaddingV
         composable(route = BottomNavItem.Heartbeat.route) {
             HeartBeatScreen(
                 viewModel = viewModel {
-                    HeartbeatViewModel(heartbeatRepository)
+                    HeartbeatViewModel(
+                        nextHeartbeatUseCase,
+                        setMaxTempUseCase,
+                        setMinTempUseCase,
+                        setMorningTimeUseCase,
+                        setNightTempUseCase,
+                        setNightTempDifferenceUseCase,
+                        requestHealthCheckUseCase,
+                        resetDefaultParamsUseCase,
+                        setHeartbeatPeriodUseCase
+                    )
                 },
                 innerPadding = innerPadding
             )
