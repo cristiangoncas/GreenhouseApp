@@ -32,3 +32,5 @@ The Android app serves as the interface for monitoring and managing the greenhou
 - Alarm system: periodically fetch logs and notify the user if values are out of range.
 - Generate graphs for temperature, humidity, and light hours, with visual indicators of key events (heater/fan on/off).
 
+!! Disclaimer !!
+The code for this simple app is overengineered as I used this app for an architectur course I am taking ([this course](https://devexpert.io/architect-coders/)).
