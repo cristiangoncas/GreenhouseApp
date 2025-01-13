@@ -1,3 +1,6 @@
+!! Disclaimer !!
+The code for this simple app is overengineered as I used this app for an architecture course I am taking ([this course](https://devexpert.io/architect-coders/)).
+
 # Why?
 
 This project was born from my need to grow tropical bonsai trees in Ontario, Canada during winter. These trees require adequate temperature and humidity. Although they can adapt somewhat to cold weather, they cannot survive the extreme temperatures of -10°C to -20°C typical of this region. Using my knowledge, I decided to create this project.
@@ -31,6 +34,3 @@ The Android app serves as the interface for monitoring and managing the greenhou
 - Configure ESP32 parameters via heartbeat.
 - Alarm system: periodically fetch logs and notify the user if values are out of range.
 - Generate graphs for temperature, humidity, and light hours, with visual indicators of key events (heater/fan on/off).
-
-!! Disclaimer !!
-The code for this simple app is overengineered as I used this app for an architectur course I am taking ([this course](https://devexpert.io/architect-coders/)).
