@@ -39,6 +39,7 @@ fun HomeScreen(
         viewModel.onUiReady()
     }
 }
+// TODO: Missing snackbar or other way to display errors occurred during the app execution
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

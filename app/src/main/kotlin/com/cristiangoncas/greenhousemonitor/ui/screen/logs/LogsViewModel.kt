@@ -2,9 +2,9 @@ package com.cristiangoncas.greenhousemonitor.ui.screen.logs
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cristiangoncas.greenhousemonitor.data.local.model.CustomResult
-import com.cristiangoncas.greenhousemonitor.data.local.model.LogEntry
-import com.cristiangoncas.greenhousemonitor.ui.usecases.FetchLogs24hUseCase
+import com.cristiangoncas.greenhousemonitor.domain.models.CustomResult
+import com.cristiangoncas.greenhousemonitor.domain.models.LogEntry
+import com.cristiangoncas.usecases.FetchLogs24hUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow

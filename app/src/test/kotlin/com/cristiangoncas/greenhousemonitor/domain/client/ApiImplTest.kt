@@ -1,6 +1,6 @@
 package com.cristiangoncas.greenhousemonitor.domain.client
 
-import com.cristiangoncas.greenhousemonitor.data.remote.client.ApiImpl
+import com.cristiangoncas.greenhousemonitor.framework.remote.client.ApiImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
