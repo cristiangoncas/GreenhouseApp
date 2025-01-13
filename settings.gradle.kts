@@ -21,3 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Greenhouse monitor"
 include(":app")
+include(":domain")
+include(":data")
+include(":usecases")

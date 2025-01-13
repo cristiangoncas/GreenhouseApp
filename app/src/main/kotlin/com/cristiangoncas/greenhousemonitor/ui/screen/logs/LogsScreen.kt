@@ -1,6 +1,5 @@
 package com.cristiangoncas.greenhousemonitor.ui.screen.logs
 
-import android.net.ConnectivityManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,12 +15,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cristiangoncas.greenhousemonitor.data.local.model.Event
-import com.cristiangoncas.greenhousemonitor.data.local.model.LogEntry
+import com.cristiangoncas.greenhousemonitor.domain.models.Event
+import com.cristiangoncas.greenhousemonitor.domain.models.LogEntry
 import com.cristiangoncas.greenhousemonitor.ui.common.ConnectivityState
-import com.cristiangoncas.greenhousemonitor.ui.common.Screen
 import com.cristiangoncas.greenhousemonitor.ui.common.Loading
-import com.cristiangoncas.greenhousemonitor.ui.common.rememberConnectivityState
+import com.cristiangoncas.greenhousemonitor.ui.common.Screen
 
 @Composable
 fun LogsScreen(

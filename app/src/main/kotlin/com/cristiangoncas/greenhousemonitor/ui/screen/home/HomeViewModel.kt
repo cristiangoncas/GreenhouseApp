@@ -2,13 +2,13 @@ package com.cristiangoncas.greenhousemonitor.ui.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cristiangoncas.greenhousemonitor.data.local.model.Average
-import com.cristiangoncas.greenhousemonitor.data.local.model.CustomResult
-import com.cristiangoncas.greenhousemonitor.data.local.model.EventCount
-import com.cristiangoncas.greenhousemonitor.ui.usecases.Average12hUseCase
-import com.cristiangoncas.greenhousemonitor.ui.usecases.Average24hUseCase
-import com.cristiangoncas.greenhousemonitor.ui.usecases.Average48hUseCase
-import com.cristiangoncas.greenhousemonitor.ui.usecases.HeaterEvents24hUseCase
+import com.cristiangoncas.greenhousemonitor.domain.models.Average
+import com.cristiangoncas.greenhousemonitor.domain.models.CustomResult
+import com.cristiangoncas.greenhousemonitor.domain.models.EventCount
+import com.cristiangoncas.usecases.Average12hUseCase
+import com.cristiangoncas.usecases.Average24hUseCase
+import com.cristiangoncas.usecases.Average48hUseCase
+import com.cristiangoncas.usecases.HeaterEvents24hUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
