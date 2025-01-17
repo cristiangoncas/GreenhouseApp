@@ -21,11 +21,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").readText().byteInputStream())
-
-        val apiIp: String = properties.getProperty("API_IP", "")
-        buildConfigField("String", "API_IP", "\"$apiIp\"")
+        buildConfigField("String", "API_IP", "\"https://greenhouse.jribo.kiwi\"")
     }
 
     buildTypes {
