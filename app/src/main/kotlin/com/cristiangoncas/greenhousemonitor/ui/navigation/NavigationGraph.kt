@@ -55,6 +55,7 @@ fun NavigationGraph(navHostController: NavHostController, innerPadding: PaddingV
     val remoteDataSource: RemoteDataSource = APIDataSource(
         api = ApiImpl(client = httpClient, apiUrl = BuildConfig.API_IP)
     )
+
     val logRepository: LocalDataSource = RoomDataSource(
         db = GreenhouseDB.getInstance(context)
     )
@@ -65,9 +66,6 @@ fun NavigationGraph(navHostController: NavHostController, innerPadding: PaddingV
     )
     val logs24hUseCase = FetchLogs24hUseCase(logsRepository)
     val heartbeatRepository: HeartbeatRepository = HeartbeatRepositoryImpl(remoteDataSource)
-
-    val average12hUseCase = Average12hUseCase(logsRepository)
-    val average24hUseCase = Average24hUseCase(logsRepository)
     val average48hUseCase = Average48hUseCase(logsRepository)
     val heaterEvents24hUseCase = HeaterEvents24hUseCase(logsRepository)
 
@@ -87,14 +85,6 @@ fun NavigationGraph(navHostController: NavHostController, innerPadding: PaddingV
     ) {
         composable(route = BottomNavItem.Home.route) {
             HomeScreen(
-                viewModel = viewModel {
-                    HomeViewModel(
-                        average12hUseCase,
-                        average24hUseCase,
-                        average48hUseCase,
-                        heaterEvents24hUseCase
-                    )
-                },
                 innerPadding = innerPadding
             )
         }

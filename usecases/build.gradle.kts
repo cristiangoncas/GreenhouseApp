@@ -18,4 +18,6 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":domain"))
     implementation(libs.coroutines.core)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.core)
 }
