@@ -1,6 +1,16 @@
 !! Disclaimer !!
 The code for this simple app is overengineered as I used this app for an architecture course I am taking ([this course](https://devexpert.io/architect-coders/)).
 
+<div style="display: flex; align-items: center; gap: 10px;">
+  <img src="screenshots/Home.png" width="200"/>
+  <img src="screenshots/Logs.png" width="200"/>
+  <img src="screenshots/Heartbeat.png" width="200"/>
+</div>
+
+# Current state
+The priority right now is to finish the architectural aspect of the project. Finishing up dependency injection and testing right after.
+Once that is done, I will focus my efforts on improving the UI, adding new features like detecting unexpected temperatures, notifications and background updates of the data.
+
 # Why?
 
 This project was born from my need to grow tropical bonsai trees in Ontario, Canada during winter. These trees require adequate temperature and humidity. Although they can adapt somewhat to cold weather, they cannot survive the extreme temperatures of -10°C to -20°C typical of this region. Using my knowledge, I decided to create this project.
