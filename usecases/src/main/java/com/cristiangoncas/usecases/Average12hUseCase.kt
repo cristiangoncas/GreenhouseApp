@@ -4,6 +4,7 @@ import com.cristiangoncas.greenhousemonitor.domain.models.AverageTempHumid
 import com.cristiangoncas.greenhousemonitor.domain.models.CustomResult
 import com.cristiangoncas.data.repository.LogsRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 

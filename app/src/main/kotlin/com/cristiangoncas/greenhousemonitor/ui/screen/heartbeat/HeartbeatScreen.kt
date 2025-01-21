@@ -16,9 +16,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cristiangoncas.greenhousemonitor.domain.models.HeartBeat
 import com.cristiangoncas.greenhousemonitor.ui.common.Screen
 import com.cristiangoncas.greenhousemonitor.ui.common.Loading
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun HeartBeatScreen(viewModel: HeartbeatViewModel, innerPadding: PaddingValues) {
+fun HeartBeatScreen(
+    innerPadding: PaddingValues,
+    viewModel: HeartbeatViewModel = koinViewModel()
+) {
     val state by viewModel.state.collectAsState()
 
     Screen {

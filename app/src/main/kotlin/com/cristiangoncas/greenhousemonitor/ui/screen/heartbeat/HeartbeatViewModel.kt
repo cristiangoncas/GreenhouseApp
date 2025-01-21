@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HeartbeatViewModel(
-    nextHeartbeatUseCase: NextHeartbeatUseCase,
+    private val nextHeartbeatUseCase: NextHeartbeatUseCase,
     private val setMaxTempUseCase: SetMaxTempUseCase,
     private val setMinTempUseCase: SetMinTempUseCase,
     private val setMorningTimeUseCase: SetMorningTimeUseCase,

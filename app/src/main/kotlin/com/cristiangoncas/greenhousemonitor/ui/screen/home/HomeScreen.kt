@@ -23,10 +23,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.cristiangoncas.greenhousemonitor.ui.common.Screen
 import com.cristiangoncas.greenhousemonitor.ui.common.Loading
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel, innerPadding: PaddingValues
+    innerPadding: PaddingValues,
+    viewModel: HomeViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val onRefresh = {

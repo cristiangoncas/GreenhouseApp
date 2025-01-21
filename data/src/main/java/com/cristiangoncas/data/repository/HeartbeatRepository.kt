@@ -1,8 +1,8 @@
 package com.cristiangoncas.data.repository
 
+import com.cristiangoncas.data.remote.RemoteDataSource
 import com.cristiangoncas.greenhousemonitor.domain.models.CustomResult
 import com.cristiangoncas.greenhousemonitor.domain.models.HeartBeat
-import com.cristiangoncas.data.remote.RemoteDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

@@ -4,6 +4,7 @@ import com.cristiangoncas.data.remote.RemoteDataSource
 import com.cristiangoncas.greenhousemonitor.domain.models.CustomResult
 import com.cristiangoncas.greenhousemonitor.domain.models.HeartBeat
 import com.cristiangoncas.greenhousemonitor.domain.models.LogEntry
+import com.cristiangoncas.greenhousemonitor.framework.remote.client.Api
 import com.cristiangoncas.greenhousemonitor.framework.remote.model.RemoteLogEntry
 import com.cristiangoncas.greenhousemonitor.framework.remote.client.ApiImpl
 import com.cristiangoncas.greenhousemonitor.framework.remote.model.RemoteHeartBeat
@@ -11,7 +12,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 
-class APIDataSource(private val api: ApiImpl) : RemoteDataSource {
+class APIDataSource(private val api: Api) : RemoteDataSource {
 
     override suspend fun getLastLog(): CustomResult<LogEntry> {
         val lastLog = api.getLastLog()

@@ -46,40 +46,38 @@ import io.ktor.client.engine.android.Android
 
 @Composable
 fun NavigationGraph(navHostController: NavHostController, innerPadding: PaddingValues) {
-    val context: Context = LocalContext.current.applicationContext
-    val connectivityManager =
-        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val connectivityState = ConnectivityState(connectivityManager)
-
-    val httpClient = HttpClient(Android)
-    val remoteDataSource: RemoteDataSource = APIDataSource(
-        api = ApiImpl(client = httpClient, apiUrl = BuildConfig.API_IP)
-    )
-    val logRepository: LocalDataSource = RoomDataSource(
-        db = GreenhouseDB.getInstance(context)
-    )
-    val logsRepository: LogsRepository = LogsRepositoryImpl(
-        remoteDataSource = remoteDataSource,
-        localDataSource = logRepository,
-        connectivityState = connectivityState
-    )
-    val logs24hUseCase = FetchLogs24hUseCase(logsRepository)
-    val heartbeatRepository: HeartbeatRepository = HeartbeatRepositoryImpl(remoteDataSource)
-
-    val average12hUseCase = Average12hUseCase(logsRepository)
-    val average24hUseCase = Average24hUseCase(logsRepository)
-    val average48hUseCase = Average48hUseCase(logsRepository)
-    val heaterEvents24hUseCase = HeaterEvents24hUseCase(logsRepository)
-
-    val nextHeartbeatUseCase = NextHeartbeatUseCase(heartbeatRepository)
-    val setMaxTempUseCase = SetMaxTempUseCase(heartbeatRepository)
-    val setMinTempUseCase = SetMinTempUseCase(heartbeatRepository)
-    val setMorningTimeUseCase = SetMorningTimeUseCase(heartbeatRepository)
-    val setNightTempUseCase = SetNightTimeUseCase(heartbeatRepository)
-    val setNightTempDifferenceUseCase = SetNightTempDifferenceUseCase(heartbeatRepository)
-    val requestHealthCheckUseCase = RequestHealthCheckUseCase(heartbeatRepository)
-    val resetDefaultParamsUseCase = ResetDefaultParamsUseCase(heartbeatRepository)
-    val setHeartbeatPeriodUseCase = SetHeartbeatPeriodUseCase(heartbeatRepository)
+//    val context: Context = LocalContext.current.applicationContext
+//    val connectivityManager =
+//        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+//    val connectivityState = ConnectivityState(connectivityManager)
+//
+//    val httpClient = HttpClient(Android)
+//    val remoteDataSource: RemoteDataSource = APIDataSource(
+//        api = ApiImpl(client = httpClient, apiUrl = BuildConfig.API_IP)
+//    )
+//
+//    val logRepository: LocalDataSource = RoomDataSource(
+//        db = GreenhouseDB.getInstance(context)
+//    )
+//    val logsRepository: LogsRepository = LogsRepositoryImpl(
+//        remoteDataSource = remoteDataSource,
+//        localDataSource = logRepository,
+//        connectivityState = connectivityState
+//    )
+//    val logs24hUseCase = FetchLogs24hUseCase(logsRepository)
+//    val heartbeatRepository: HeartbeatRepository = HeartbeatRepositoryImpl(remoteDataSource)
+//    val average48hUseCase = Average48hUseCase(logsRepository)
+//    val heaterEvents24hUseCase = HeaterEvents24hUseCase(logsRepository)
+//
+//    val nextHeartbeatUseCase = NextHeartbeatUseCase(heartbeatRepository)
+//    val setMaxTempUseCase = SetMaxTempUseCase(heartbeatRepository)
+//    val setMinTempUseCase = SetMinTempUseCase(heartbeatRepository)
+//    val setMorningTimeUseCase = SetMorningTimeUseCase(heartbeatRepository)
+//    val setNightTempUseCase = SetNightTimeUseCase(heartbeatRepository)
+//    val setNightTempDifferenceUseCase = SetNightTempDifferenceUseCase(heartbeatRepository)
+//    val requestHealthCheckUseCase = RequestHealthCheckUseCase(heartbeatRepository)
+//    val resetDefaultParamsUseCase = ResetDefaultParamsUseCase(heartbeatRepository)
+//    val setHeartbeatPeriodUseCase = SetHeartbeatPeriodUseCase(heartbeatRepository)
 
     NavHost(
         navController = navHostController,
@@ -87,41 +85,16 @@ fun NavigationGraph(navHostController: NavHostController, innerPadding: PaddingV
     ) {
         composable(route = BottomNavItem.Home.route) {
             HomeScreen(
-                viewModel = viewModel {
-                    HomeViewModel(
-                        average12hUseCase,
-                        average24hUseCase,
-                        average48hUseCase,
-                        heaterEvents24hUseCase
-                    )
-                },
                 innerPadding = innerPadding
             )
         }
         composable(route = BottomNavItem.Logs.route) {
             LogsScreen(
-                viewModel = viewModel {
-                    LogsViewModel(logs24hUseCase)
-                },
-                innerPadding = innerPadding,
-                connectivityState = connectivityState
+                innerPadding = innerPadding
             )
         }
         composable(route = BottomNavItem.Heartbeat.route) {
             HeartBeatScreen(
-                viewModel = viewModel {
-                    HeartbeatViewModel(
-                        nextHeartbeatUseCase,
-                        setMaxTempUseCase,
-                        setMinTempUseCase,
-                        setMorningTimeUseCase,
-                        setNightTempUseCase,
-                        setNightTempDifferenceUseCase,
-                        requestHealthCheckUseCase,
-                        resetDefaultParamsUseCase,
-                        setHeartbeatPeriodUseCase
-                    )
-                },
                 innerPadding = innerPadding
             )
         }
