@@ -8,13 +8,12 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class Average24hUseCase(
-//    private val logsRepository: LogsRepository
+    private val logsRepository: LogsRepository
 ) {
 
     operator fun invoke(): Flow<CustomResult<AverageTempHumid>> {
-        TODO()
-//        val now = Instant.now()
-//        val last24h = now.minus(24, ChronoUnit.HOURS)
-//        return logsRepository.fetchAveragesByPeriodOfTime(last24h.toEpochMilli())
+        val now = Instant.now()
+        val last24h = now.minus(24, ChronoUnit.HOURS)
+        return logsRepository.fetchAveragesByPeriodOfTime(last24h.toEpochMilli())
     }
 }

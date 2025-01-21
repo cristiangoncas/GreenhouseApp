@@ -13,8 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.cristiangoncas.greenhousemonitor.ui.navigation.BottomNavigationBar
 import com.cristiangoncas.greenhousemonitor.ui.navigation.NavigationGraph
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

@@ -5,6 +5,7 @@ import com.cristiangoncas.usecases.Average24hUseCase
 import com.cristiangoncas.usecases.Average48hUseCase
 import com.cristiangoncas.usecases.FetchLogs24hUseCase
 import com.cristiangoncas.usecases.HeaterEvents24hUseCase
+import com.cristiangoncas.usecases.NextHeartbeatUseCase
 import com.cristiangoncas.usecases.RequestHealthCheckUseCase
 import com.cristiangoncas.usecases.ResetDefaultParamsUseCase
 import com.cristiangoncas.usecases.SetHeartbeatPeriodUseCase
@@ -16,17 +17,18 @@ import com.cristiangoncas.usecases.SetNightTimeUseCase
 import org.koin.dsl.module
 
 val useCasesModule = module {
-    factory { Average12hUseCase() }
-    factory { Average24hUseCase() }
-//    factory { Average48hUseCase(get()) }
-//    factory { FetchLogs24hUseCase(get()) }
-//    factory { HeaterEvents24hUseCase(get()) }
-//    factory { RequestHealthCheckUseCase(get()) }
-//    factory { ResetDefaultParamsUseCase(get()) }
-//    factory { SetHeartbeatPeriodUseCase(get()) }
-//    factory { SetMaxTempUseCase(get()) }
-//    factory { SetMinTempUseCase(get()) }
-//    factory { SetMorningTimeUseCase(get()) }
-//    factory { SetNightTimeUseCase(get()) }
-//    factory { SetNightTempDifferenceUseCase(get()) }
+    factory { Average12hUseCase(get()) }
+    factory { Average24hUseCase(get()) }
+    factory { Average48hUseCase(get()) }
+    factory { FetchLogs24hUseCase(get()) }
+    factory { HeaterEvents24hUseCase(get()) }
+    factory { NextHeartbeatUseCase(get()) }
+    factory { RequestHealthCheckUseCase(get()) }
+    factory { ResetDefaultParamsUseCase(get()) }
+    factory { SetHeartbeatPeriodUseCase(get()) }
+    factory { SetMaxTempUseCase(get()) }
+    factory { SetMinTempUseCase(get()) }
+    factory { SetMorningTimeUseCase(get()) }
+    factory { SetNightTimeUseCase(get()) }
+    factory { SetNightTempDifferenceUseCase(get()) }
 }

@@ -15,17 +15,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cristiangoncas.data.remote.ConnectivityDataSource
 import com.cristiangoncas.greenhousemonitor.domain.models.Event
 import com.cristiangoncas.greenhousemonitor.domain.models.LogEntry
 import com.cristiangoncas.greenhousemonitor.ui.common.ConnectivityState
 import com.cristiangoncas.greenhousemonitor.ui.common.Loading
 import com.cristiangoncas.greenhousemonitor.ui.common.Screen
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun LogsScreen(
-    viewModel: LogsViewModel,
     innerPadding: PaddingValues,
-    connectivityState: ConnectivityState
+    connectivityState: ConnectivityDataSource = koinInject(),
+    viewModel: LogsViewModel = koinViewModel()
 ) {
 
     val isConnected = connectivityState.isConnected.collectAsState(initial = false)
