@@ -7,16 +7,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cristiangoncas.greenhousemonitor.domain.models.Average
+
+const val AVERAGE_COMPONENT_TAG = "averageComponent"
 
 @Composable
 fun AveragesComponent(average: Average) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp), // Optional padding for the entire row
+            .padding(8.dp)
+            .testTag(AVERAGE_COMPONENT_TAG + average.hours),
         horizontalArrangement = Arrangement.SpaceAround // Space evenly between the components
     ) {
         AverageDisplayComponent(

@@ -13,7 +13,7 @@ import junit.framework.TestCase.assertNull
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
-class ApiImplTest {
+class ApiClientTest {
 
     @Test
     fun testGetLogs24h() = runTest {

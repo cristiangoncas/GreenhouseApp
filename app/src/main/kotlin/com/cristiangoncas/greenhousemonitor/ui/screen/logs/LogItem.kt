@@ -14,8 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.cristiangoncas.greenhousemonitor.domain.models.Event
+
+const val LOG_ITEM_TAG = "LOG_ITEM"
 
 @Composable
 fun LogItem(
@@ -35,7 +38,8 @@ fun LogItem(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(6.dp),
+                    .padding(6.dp)
+                    .testTag(LOG_ITEM_TAG + log.id),
                 contentAlignment = Alignment.Center
             ) {
                 Row(

@@ -20,4 +20,9 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.coroutines.test)
 }

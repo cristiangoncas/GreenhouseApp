@@ -23,8 +23,8 @@ interface LogEntryDao {
     @Query("SELECT * FROM DbLogEntry ORDER BY id DESC")
     fun fetchAllLogs(): Flow<List<DbLogEntry>>
 
-    @Query("SELECT * FROM DbLogEntry WHERE timestamp >= :past24hours ORDER BY id DESC")
-    fun fetchLogEntriesLast24hFromPointInTime(past24hours: Long): Flow<List<DbLogEntry>>
+    @Query("SELECT * FROM DbLogEntry ORDER BY id DESC LIMIT 250")
+    fun fetchLatestLogEntriesFlow(): Flow<List<DbLogEntry>>
 
     @Query("SELECT \n" +
             "    ROUND(AVG(CASE WHEN event = 'tempRead' THEN CAST(REPLACE(data, '.', '') AS REAL) / 100.0 END), 2) AS avgTempRead,\n" +

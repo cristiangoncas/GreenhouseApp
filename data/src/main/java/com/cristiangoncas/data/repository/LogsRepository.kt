@@ -7,19 +7,19 @@ import com.cristiangoncas.greenhousemonitor.domain.models.AverageTempHumid
 import com.cristiangoncas.greenhousemonitor.domain.models.CustomResult
 import com.cristiangoncas.greenhousemonitor.domain.models.HeaterOnOffCounts
 import com.cristiangoncas.greenhousemonitor.domain.models.LogEntry
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 interface LogsRepository {
 
-    val last24hLogs: Flow<CustomResult<List<LogEntry>>>
+    fun fetchLastLogEntries(): Flow<CustomResult<List<LogEntry>>>
 
     fun fetchAveragesByPeriodOfTime(period: Long): Flow<CustomResult<AverageTempHumid>>
 
@@ -29,29 +29,34 @@ interface LogsRepository {
 class LogsRepositoryImpl(
     private val remoteDataSource: RemoteDataSource,
     private val localDataSource: LocalDataSource,
-    private val connectivityState: ConnectivityDataSource
+    private val connectivityState: ConnectivityDataSource,
+    private val refreshDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : LogsRepository {
 
-    override val last24hLogs: Flow<CustomResult<List<LogEntry>>> =
-        localDataSource.last24hLogs
-            .onEach { logEntries ->
-                if (logEntries.isSuccessful()) {
-                    logEntries as CustomResult.Success
-                    if (connectivityState.isConnected.first()) {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            if (logEntries.data.isEmpty()) {
-                                fetchRemoteLogs()
-                            } else {
-                                fetchRemoteLogsFromLastLocalLogId(logEntries.data)
-                            }
-                        }
-                    }
-                }
+
+    override fun fetchLastLogEntries(): Flow<CustomResult<List<LogEntry>>> {
+        return localDataSource.fetchLastLogEntries()
+            .onStart {
+                CoroutineScope(refreshDispatcher).launch { refreshIfNecessary() }
             }
             .distinctUntilChanged()
             .catch {
                 CustomResult.Error(it.message ?: "Something went wrong when fetching logs")
             }
+    }
+
+    private suspend fun refreshIfNecessary() {
+        // TODO: Fetch last log id, send that to an API and server would return what logs are missing.
+//        val logEntries = localDataSource.fetchLastLogEntries()
+        if (connectivityState.isConnected.first()) {
+//            logEntries as CustomResult.Success
+//            if (logEntries.data.isEmpty()) {
+            fetchRemoteLogs()
+//            } else {
+//                fetchRemoteLogsFromLastLocalLogId(logEntries.data)
+//            }
+        }
+    }
 
     override fun fetchAveragesByPeriodOfTime(period: Long): Flow<CustomResult<AverageTempHumid>> {
         return localDataSource.fetchAveragesByPeriodOfTime(period)
@@ -67,7 +72,15 @@ class LogsRepositoryImpl(
         if (allLogsResult.isSuccessful()) {
             // TODO: Add batching to avoid having huge data sets. 10 days worth of logs is around 500 logs.
             allLogsResult as CustomResult.Success
-            persistLogs(allLogsResult.data)
+            allLogsResult.data.forEach {
+
+                println("Result: ${it.data}")
+            }
+            val persistedLogs = persistLogs(allLogsResult.data).first()
+            if (!persistedLogs.isSuccessful()) {
+                persistedLogs as CustomResult.Error
+                throw Exception(persistedLogs.message)
+            }
         } else {
             allLogsResult as CustomResult.Error
             throw Exception(allLogsResult.message)
@@ -99,7 +112,7 @@ class LogsRepositoryImpl(
         }
     }
 
-    private fun persistLogs(logEntries: List<LogEntry>) {
-        localDataSource.insertLogEntries(logEntries)
+    private fun persistLogs(logEntries: List<LogEntry>): Flow<CustomResult<Unit>> {
+        return localDataSource.insertLogEntries(logEntries)
     }
 }

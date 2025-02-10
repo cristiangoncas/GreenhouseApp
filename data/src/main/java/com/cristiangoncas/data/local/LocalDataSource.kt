@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
 
-    val last24hLogs: Flow<CustomResult<List<LogEntry>>>
+    fun fetchLastLogEntries(): Flow<CustomResult<List<LogEntry>>>
 
     fun fetchAveragesByPeriodOfTime(period: Long): Flow<CustomResult<AverageTempHumid>>
 

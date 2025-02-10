@@ -5,7 +5,7 @@ import com.cristiangoncas.data.repository.LogsRepository
 import com.cristiangoncas.greenhousemonitor.domain.models.LogEntry
 import kotlinx.coroutines.flow.Flow
 
-class FetchLastLogs(
+class FetchLastLogsUseCase(
     private val repository: LogsRepository
 ) {
 

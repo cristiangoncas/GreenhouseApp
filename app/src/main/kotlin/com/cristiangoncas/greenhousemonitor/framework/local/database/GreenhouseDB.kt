@@ -2,6 +2,7 @@ package com.cristiangoncas.greenhousemonitor.framework.local.database
 
 import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.Room.databaseBuilder
 import androidx.room.RoomDatabase
 import com.cristiangoncas.greenhousemonitor.framework.local.model.DbLogEntry
@@ -29,6 +30,15 @@ abstract class GreenhouseDB : RoomDatabase() {
 
                 instance
             }
+        }
+
+        fun getTestInstance(context: Context): GreenhouseDB {
+            return Room.inMemoryDatabaseBuilder(
+                context,
+                GreenhouseDB::class.java
+            )
+                .allowMainThreadQueries()
+                .build()
         }
     }
 }

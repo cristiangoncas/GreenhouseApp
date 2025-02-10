@@ -12,10 +12,10 @@ data class HeartBeat(
     fun allEmpty(): Boolean {
         return maxTemp.isNullOrEmpty() &&
                 minTemp.isNullOrEmpty() &&
-                morningTime == null &&
-                nightTime == null &&
-                nightTempDifference == null &&
-                resetDefaults == null &&
-                heartbeatPeriod == null
+                morningTime.isNullOrEmpty() &&
+                nightTime.isNullOrEmpty() &&
+                nightTempDifference.isNullOrEmpty() &&
+                resetDefaults.isNullOrEmpty() &&
+                heartbeatPeriod.isNullOrEmpty()
     }
 }
