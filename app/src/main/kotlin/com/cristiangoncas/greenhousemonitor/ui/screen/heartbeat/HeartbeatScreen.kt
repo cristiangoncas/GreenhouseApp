@@ -51,7 +51,7 @@ fun HeartBeatScreen(
 
 @Composable
 fun HeartbeatContent(
-    state: HeartbeatViewModel.UiState, viewModel: HeartbeatViewModel
+    state: UiState, viewModel: HeartbeatViewModel
 ) {
     ActionItem(
         label = "Request health check",
@@ -102,7 +102,7 @@ fun HeartbeatContent(
 @Preview(showBackground = true)
 @Composable
 fun HeartbeatContentPreview() {
-    val uiState = HeartbeatViewModel.UiState(
+    val uiState = UiState(
         loading = false, heartBeat = HeartBeat(
             maxTemp = "22", minTemp = "17"
         )

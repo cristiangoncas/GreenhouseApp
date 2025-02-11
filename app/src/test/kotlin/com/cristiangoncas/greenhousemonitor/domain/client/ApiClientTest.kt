@@ -1,5 +1,6 @@
 package com.cristiangoncas.greenhousemonitor.domain.client
 
+import com.cristiangoncas.greenhousemonitor.domain.models.CustomResult
 import com.cristiangoncas.greenhousemonitor.framework.remote.client.ApiImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -12,7 +13,7 @@ import junit.framework.TestCase.assertNull
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
-class ApiImplTest {
+class ApiClientTest {
 
     @Test
     fun testGetLogs24h() = runTest {
@@ -69,13 +70,15 @@ class ApiImplTest {
             )
         }
         val apiImpl = ApiImpl(client = HttpClient(mockEngine), apiUrl = "http://localhost:8080")
-
         val logs = apiImpl.getAllLogs()
-        assert(logs.size == 2)
-        val log = logs[0]
-        assert(log.id == 21321)
-        val log1 = logs[1]
-        assert(log1.id == 21320)
+        if (logs.isSuccessful()) {
+            logs as CustomResult.Success
+            assert(logs.data.size == 2)
+            val log = logs.data[0]
+            assert(log.id == 21321)
+            val log1 = logs.data[1]
+            assert(log1.id == 21320)
+        }
     }
 
     @Test
@@ -90,11 +93,14 @@ class ApiImplTest {
         val apiImpl = ApiImpl(client = HttpClient(mockEngine), apiUrl = "http://localhost:8080")
 
         val heartBeat = apiImpl.nextHeartBeat()
-        assertNotNull(heartBeat.maxTemp)
-        assertNotNull(heartBeat.minTemp)
-        assertNull(heartBeat.morningTime)
-        assertNull(heartBeat.nightTime)
-        assert(heartBeat.maxTemp == "22")
-        assert(heartBeat.minTemp == "17")
+        if (heartBeat.isSuccessful()) {
+            heartBeat as CustomResult.Success
+            assertNotNull(heartBeat.data.maxTemp)
+            assertNotNull(heartBeat.data.minTemp)
+            assertNull(heartBeat.data.morningTime)
+            assertNull(heartBeat.data.nightTime)
+            assert(heartBeat.data.maxTemp == "22")
+            assert(heartBeat.data.minTemp == "17")
+        }
     }
 }

@@ -3,7 +3,7 @@ package com.cristiangoncas.usecases.di
 import com.cristiangoncas.usecases.Average12hUseCase
 import com.cristiangoncas.usecases.Average24hUseCase
 import com.cristiangoncas.usecases.Average48hUseCase
-import com.cristiangoncas.usecases.FetchLogs24hUseCase
+import com.cristiangoncas.usecases.FetchLastLogsUseCase
 import com.cristiangoncas.usecases.HeaterEvents24hUseCase
 import com.cristiangoncas.usecases.NextHeartbeatUseCase
 import com.cristiangoncas.usecases.RequestHealthCheckUseCase
@@ -20,7 +20,7 @@ val useCasesModule = module {
     factory { Average12hUseCase(get()) }
     factory { Average24hUseCase(get()) }
     factory { Average48hUseCase(get()) }
-    factory { FetchLogs24hUseCase(get()) }
+    single { FetchLastLogsUseCase(get()) }
     factory { HeaterEvents24hUseCase(get()) }
     factory { NextHeartbeatUseCase(get()) }
     factory { RequestHealthCheckUseCase(get()) }

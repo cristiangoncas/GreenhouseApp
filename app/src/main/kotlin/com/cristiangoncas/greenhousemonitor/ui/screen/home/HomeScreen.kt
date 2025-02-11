@@ -27,26 +27,41 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(
-    innerPadding: PaddingValues,
     viewModel: HomeViewModel = koinViewModel()
-) {
-    val state by viewModel.state.collectAsState()
+) { val state by viewModel.state.collectAsState()
+    val onUiReady = {
+        viewModel.onUiReady()
+    }
     val onRefresh = {
         viewModel.refresh()
     }
+    HomeScreen(
+        state = state,
+        onUiReady = onUiReady,
+        onRefresh = onRefresh
+    )
+}
+
+
+@Composable
+fun HomeScreen(
+    state: HomeViewModel.UiState,
+    onUiReady: () -> Unit,
+    onRefresh: () -> Unit
+) {
     Screen {
-        HomeContent(innerPadding, state, onRefresh)
+        HomeContent(state, onRefresh)
     }
     LaunchedEffect(Unit) {
-        viewModel.onUiReady()
+        onUiReady.invoke()
     }
 }
+
 // TODO: Missing snackbar or other way to display errors occurred during the app execution
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeContent(
-    innerPadding: PaddingValues,
     state: HomeViewModel.UiState,
     onRefresh: () -> Unit,
 ) {

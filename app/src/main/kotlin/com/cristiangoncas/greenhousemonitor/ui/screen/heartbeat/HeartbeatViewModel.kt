@@ -14,17 +14,21 @@ import com.cristiangoncas.usecases.SetMorningTimeUseCase
 import com.cristiangoncas.usecases.SetNightTempDifferenceUseCase
 import com.cristiangoncas.usecases.SetNightTimeUseCase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HeartbeatViewModel(
-    private val nextHeartbeatUseCase: NextHeartbeatUseCase,
+    nextHeartbeatUseCase: NextHeartbeatUseCase,
     private val setMaxTempUseCase: SetMaxTempUseCase,
     private val setMinTempUseCase: SetMinTempUseCase,
     private val setMorningTimeUseCase: SetMorningTimeUseCase,
@@ -35,72 +39,85 @@ class HeartbeatViewModel(
     private val setHeartbeatPeriodUseCase: SetHeartbeatPeriodUseCase
 ) : ViewModel() {
 
+    private val refreshTrigger = MutableSharedFlow<Unit>(replay = 0)
     private val uiActions = MutableSharedFlow<(UiState) -> UiState>()
-    val state: StateFlow<UiState> = merge(
-        nextHeartbeatUseCase()
-            .map { heartBeat ->
-                { currentState ->
-                    heartBeat as CustomResult.Success
-                    currentState.copy(
-                        heartBeat = heartBeat.data,
-                        loading = false
-                    )
-                }
-            },
-        uiActions
-    )
-        .scan(UiState(loading = true)) { currentState, reducer ->
-            reducer(currentState)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val heartbeatFlow: Flow<UiState> = refreshTrigger
+        .onStart {
+            emit(Unit)
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
-            initialValue = UiState(loading = true)
-        )
+        .flatMapLatest {
+            nextHeartbeatUseCase().map { heartBeat ->
+                { currentState: UiState ->
+                    when (heartBeat) {
+                        is CustomResult.Success -> currentState.copy(
+                            heartBeat = heartBeat.data,
+                            loading = false
+                        )
+
+                        is CustomResult.Error -> currentState.copy(
+                            errors = currentState.errors + mapOf("nextHeartbeat" to heartBeat.message),
+                            loading = false
+                        )
+
+                        is CustomResult.Loading -> currentState.copy(
+                            loading = true
+                        )
+                    }
+                }
+            }
+        }
+        .scan(UiState()) { currentState, transform -> transform(currentState) }
+
+    val state: StateFlow<UiState> = merge(
+        heartbeatFlow,
+        uiActions
+            .scan(UiState()) { currentState, transform -> transform(currentState) }
+    ).stateIn(
+        scope = viewModelScope,
+        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+        initialValue = UiState(loading = true)
+    )
+
+    fun onUiReady() {
+        viewModelScope.launch {
+            refreshTrigger.emit(Unit)
+        }
+    }
 
     fun setMaxTemp(maxTemp: String) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val intMaxTemp = maxTemp.toIntOrNull() ?: 0
-                if (intMaxTemp in 15..25) {
-                    setMaxTempUseCase(intMaxTemp).collect { result ->
+            val intMaxTemp = maxTemp.toIntOrNull() ?: 0
+            if (intMaxTemp in 15..25) {
+                setMaxTempUseCase(intMaxTemp).collect { result ->
+                    uiActions.emit { currentState ->
                         when (result) {
                             is CustomResult.Success -> {
-                                uiActions.emit { currentState ->
-                                    currentState.copy(
-                                        errors = currentState.errors - "maxTemp",
-                                        heartBeat = currentState.heartBeat.copy(maxTemp = intMaxTemp.toString())
-                                    )
-                                }
+                                currentState.copy(
+                                    errors = currentState.errors - "maxTemp",
+                                    heartBeat = currentState.heartBeat.copy(maxTemp = intMaxTemp.toString())
+                                )
                             }
 
                             is CustomResult.Error -> {
-                                uiActions.emit { currentState ->
-                                    currentState.copy(
-                                        loading = false,
-                                        errors = mapOf("maxTemp" to "Something went wrong: ${result.message}")
-                                    )
-                                }
+                                currentState.copy(
+                                    loading = false,
+                                    errors = mapOf("maxTemp" to "Something went wrong: ${result.message}")
+                                )
                             }
 
-                            is CustomResult.Loading -> {
-                                uiActions.emit { currentState ->
-                                    currentState.copy(
-                                        loading = true
-                                    )
-                                }
-                            }
-
+                            is CustomResult.Loading -> { currentState.copy(loading = true) }
                         }
                     }
-                } else {
-                    uiActions.emit { currentState ->
-                        currentState.copy(
-                            heartBeat = state.value.heartBeat,
-                            loading = false,
-                            errors = mapOf("maxTemp" to "Temperature out of range, must be between 15 and 25")
-                        )
-                    }
+                }
+            } else {
+                uiActions.emit { currentState ->
+                    currentState.copy(
+                        heartBeat = state.value.heartBeat,
+                        loading = false,
+                        errors = mapOf("maxTemp" to "Temperature out of range, must be between 15 and 25")
+                    )
                 }
             }
         }
@@ -261,7 +278,9 @@ class HeartbeatViewModel(
                                 uiActions.emit { currentState ->
                                     currentState.copy(
                                         errors = currentState.errors - "nightTempDifference",
-                                        heartBeat = currentState.heartBeat.copy(nightTempDifference = intNightTempDifference.toString())
+                                        heartBeat = currentState.heartBeat.copy(
+                                            nightTempDifference = intNightTempDifference.toString()
+                                        )
                                     )
                                 }
                             }
@@ -439,10 +458,10 @@ class HeartbeatViewModel(
             }
         }
     }
-
-    data class UiState(
-        var loading: Boolean = true,
-        val heartBeat: HeartBeat = HeartBeat(),
-        val errors: Map<String, String> = mapOf()
-    )
 }
+
+data class UiState(
+    var loading: Boolean = true,
+    val heartBeat: HeartBeat = HeartBeat(),
+    val errors: Map<String, String> = mapOf()
+)

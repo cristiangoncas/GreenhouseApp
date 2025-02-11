@@ -22,8 +22,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+
+const val VALUE_ITEM_BUTTON_TAG = "VALUE_ITEM_BUTTON"
+const val VALUE_ITEM_OUTLINE_TEXT_FIELD_TAG = "VALUE_ITEM_OUTLINE_TEXT_FIELD"
+const val VALUE_ITEM_INPUT_TEXT_FIELD_TAG = "VALUE_ITEM_INPUT_TEXT_FIELD"
 
 @Composable
 fun ValueItem(
@@ -61,12 +66,14 @@ fun ValueItem(
                 )
                 Text(
                     modifier = Modifier
-                        .weight(.2f),
+                        .weight(.2f)
+                        .testTag(VALUE_ITEM_INPUT_TEXT_FIELD_TAG),
                     text = "($value)"
                 )
                 OutlinedTextField(modifier = Modifier
                     .width(65.dp)
-                    .height(55.dp),
+                    .height(55.dp)
+                    .testTag(VALUE_ITEM_OUTLINE_TEXT_FIELD_TAG),
                     value = newValue,
                     onValueChange = {
                         newValue = it
@@ -74,7 +81,8 @@ fun ValueItem(
                 )
                 IconButton(
                     modifier = Modifier
-                        .weight(.2f),
+                        .weight(.2f)
+                        .testTag(VALUE_ITEM_BUTTON_TAG),
                     enabled = newValue.isNotEmpty(), onClick = {
                         validateAndSend(newValue)
                     }) {
